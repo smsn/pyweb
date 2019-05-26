@@ -60,8 +60,16 @@ async def execute(sql, args, autocommit=True):
 
 
 class Field(object):
-    def __init__(self,):
-        pass
+    #  Field | Type | Null | Key | Default | Extra
+    def __init__(self, field_name=None, field_type='varchar(100)', primary_key=False, default=None):
+        self.field_name = field_name
+        self.field_type = field_type
+        self.primary_key = primary_key
+        self.default = default
+
+    def __str__(self):
+        # obj.__str__() 方法会在 print(obj) 或 '{}'.format(obj) 时被调用
+        return "Field: {}:{} {}".format(self.__class__.__name__, self.field_type, self.primary_key)
 
 
 class Model(dict):

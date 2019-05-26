@@ -1,9 +1,10 @@
 # learn python web
 
 ## asyncio
-* yield
+* yield、回调、事件循环
 
 ## aiohttp
+* 异步 HTTP 客户端和服务端
 
 ## orm
 * 对象关系映射 Object Relational Mapping
@@ -24,3 +25,4 @@
 
 ## aiomysql
 * https://aiomysql.readthedocs.io
+* https://pymysql.readthedocs.io/en/latest/user/examples.html

@@ -1,33 +1,49 @@
 from orm import Model, Field
+import time
+import uuid
 
 
 def next_id():
-    return 1
+    return "%015d%s000" % (int(time.time() * 1000), uuid.uuid4().hex)
+    # "%015d"的意思：0代表不足位数的补0，这样可以确保相同的位数，15是位数也就是要得到到的字符串长度是15，d代表数字。
 
 
 class User(Model):
-    # 定义User类属性,实例属性通过__init__()方法初始化
+    # 定义User类属性, 映射 users 表字段 Field
+    # 实例属性通过__init__()方法初始化
     # 继承Model类方法，CURD 创建（Create）、更新（Update）、读取（Retrieve）和删除（Delete）
-    # 定义 users 表字段 Field
+    # (field_name=None, field_type='varchar(100)', primary_key=False, default=None):
     __table__ = 'users'
-    id = next_id()
-    email = ""
-    password = ""
-    admin = False
-    name = "test"
-    created_at = ""
-    avatar = "image"
+    id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
+    email = Field(field_type="varchar(50)")
+    password = Field(field_type="varchar(50)")
+    admin = Field(field_type="boolean", default=False)
+    name = Field(field_type="varchar(50)")
+    avatar = Field(field_type="varchar(500)")
+    created_at = Field(field_type="real", default=time.time)
 
 
 class Blog(Model):
-    pass
+    __table__ = 'blogs'
+    id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
+    user_id = Field(field_type="varchar(50)")
+    user_name = Field(field_type="varchar(50)")
+    user_avatar = Field(field_type="varchar(500)")
+    title = Field(field_type="varchar(50)")
+    summary = Field(field_type="varchar(200)")
+    content = Field(field_type="text")
+    created_at = Field(field_type="real", default=time.time)
 
 
-print("start")
+class Comment(Model):
+    __table__ = 'comments'
+    id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
+    blog_id = Field(field_type="varchar(50)")
+    user_id = Field(field_type="varchar(50)")
+    user_name = Field(field_type="varchar(50)")
+    user_avatar = Field(field_type="varchar(500)")
+    content = Field(field_type="text")
+    created_at = Field(field_type="real", default=time.time)
 
-user = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
-print(user)
-print(user.id)  # =User.id
-print(user["id"])
-print(user.avatar)
-print()
+
+# user = User(id=12345, name='Michael', email='test@orm.org', password='my-pwd')
