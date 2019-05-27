@@ -20,7 +20,7 @@ async def create_pool(loop, **kwargs):
     )
 
 
-async def select(sql, args, size=None):
+async def select(sql, args=(), size=None):
     # 查询
     logging.info('SQL: {}\n\tArgs: {}'.format(sql, args))
     # 使用async with 自动关闭
@@ -29,7 +29,7 @@ async def select(sql, args, size=None):
     async with __pool.acquire() as conn:  # 创建连接 conn=await aiomysql.connect()
         async with conn.cursor(aiomysql.DictCursor) as cur:
             # 创建游标对象 cursor=await conn.cursor() , DictCursor 将结果作为字典返回的游标
-            await cur.execute(sql.replace('?', '%s'), args or ())  # 执行 cursor.execute("SELECT * FROM t1 WHERE id=%s", (5,))
+            await cur.execute(sql.replace('?', '%s'), args)  # 执行 cursor.execute("SELECT * FROM t1 WHERE id=%s", (5,))
             if size:
                 results = await cur.fetchmany(size)
             else:
@@ -38,7 +38,7 @@ async def select(sql, args, size=None):
         return results  # 没有 conn.close() 连接复用
 
 
-async def execute(sql, args, autocommit=True):
+async def execute(sql, args=(), autocommit=True):
     # Insert, Update, Delete
     logging.info('\nSQL: {}\nArgs: {}\n'.format(sql, args))
     async with __pool.acquire() as conn:
@@ -77,14 +77,19 @@ class Model(dict):
         if not hasattr(cls, "table_fields"):  # 如果存在 'table_fields' 属性返回 True
             # 第一次处理父类时执行, 后续实例跳过
             # 对每一个实例都会重复执行 , 使用元类处理父类
-            logging.info("\n处理 {} 类".format(cls.__name__))
+            logging.info("处理 {} 类".format(cls.__name__))
             cls.table_fields = []
             cls.field_mappings = {}
+            cls.primary_key_field = None
             cls.table_name = getattr(cls, "table_name", cls.__name__)
             for key, value in cls.__dict__.items():  # lll = dir(cls)
                 if isinstance(value, Field):
+                    if value.primary_key:
+                        cls.primary_key_field = key
                     cls.table_fields.append(key)
                     cls.field_mappings[key] = value
+            if not cls.primary_key_field:
+                raise Exception('Primary key not found.')
             for key in cls.table_fields:
                 delattr(cls, key)  # 删除属性 继承的父类属性无法删除
         return super().__new__(cls, **kw)
@@ -108,8 +113,8 @@ class Model(dict):
         self[key] = value
 
     def get_value(self, key):
-        value = getattr(self, key, None)  # 访问对象的属性 key
-        if value is None:  # 不存在则调用默认函数生成
+        value = getattr(self, key, "not exist")  # 访问对象的属性 key
+        if "not exist" == value:  # 不存在则调用默认函数生成
             value = self.field_mappings[key].default
             if callable(value):
                 value = value()
@@ -122,8 +127,6 @@ class Model(dict):
         for key in self.table_fields:
             escaped_field.append("`%s`" % key)
             args.append(self.get_value(key))  # 获取实例属性值
-        # escaped_field = ",".join(list(map(lambda f: "`%s`"%f, escaped_field)))
-        escaped_field = ",".join(escaped_field)
         return args, escaped_field
 
     def create_args_string(self):
@@ -133,8 +136,31 @@ class Model(dict):
     async def save(self):
         # 'insert into users (`email`,`password`,`id`) values (%s,%s,%s)', ("user3@mail","passwd",3000)
         args, escaped_field = self.create_args()
-        sql = "insert into `{}` ({}) values ({})".format(self.table_name, escaped_field, self.create_args_string())
+        # escaped_field = ",".join(map(lambda f: "`%s`"%f, self.table_fields))
+        sql = "insert into `{}` ({}) values ({})".format(
+            self.table_name,
+            ",".join(escaped_field),
+            self.create_args_string())
         await execute(sql, args)
+
+    async def update(self):
+        # update users set name='aaa',id="2000" where id=2000
+        args, escaped_field = self.create_args()
+        sql = "update `{}` set {} where `{}`={}".format(
+            self.table_name,
+            ",".join(map(lambda f: '%s=?'%f, escaped_field)),
+            self.primary_key_field,
+            self.get_value(self.primary_key_field))
+        await execute(sql, args)
+
+    async def remove(self):
+        # 'delete from `users` where `id`=?'
+        sql = "delete from `{}` where `{}`={}".format(
+            self.table_name,
+            self.primary_key_field,
+            self.get_value(self.primary_key_field))
+        await execute(sql)
 
     def find(self):
         pass
+        # 'select * from users

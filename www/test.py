@@ -32,6 +32,14 @@ async def test_obj(loop):
     user2 = User(name='user2', email='user2@example.com', password='user2pass', avatar='about:blank')
     await user2.save()
     print()
+    user2.password = 'user222pass'
+    user2.name = "user222"
+    user2.avatar = "image"
+    print()
+    await user2.update()
+    print()
+    await user2.remove()
+    print()
 
 
 if __name__ == "__main__":
