@@ -19,13 +19,18 @@ def test_field():
 
 
 async def test_obj(loop):
-    user1 = User(name='user1', email='user1@example.com', password='user1pass', avatar='about:blank')
-    print(user1.__table__)
-    print(user1.name)
-    print(user1["name"])
-    print()
     await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
+    user1 = User(name='user1', email='user1@example.com', password='user1pass', avatar='about:blank')
     await user1.save()  # user1.save() 仅仅是创建了一个协程, 要用await
+    # print(user1.id)
+    # print(user1.get_value("id"))
+    # print(user1.field_mappings)
+    # print(user1.table_name)
+    # print(user1["name"])
+    # print(user1.name)
+    print()
+    user2 = User(name='user2', email='user2@example.com', password='user2pass', avatar='about:blank')
+    await user2.save()
     print()
 
 

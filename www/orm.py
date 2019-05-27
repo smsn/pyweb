@@ -73,62 +73,67 @@ class Field(object):
 
 
 class Model(dict):
+    def __new__(cls, **kw):
+        if not hasattr(cls, "table_fields"):  # 如果存在 'table_fields' 属性返回 True
+            # 第一次处理父类时执行, 后续实例跳过
+            # 对每一个实例都会重复执行 , 使用元类处理父类
+            logging.info("\n处理 {} 类".format(cls.__name__))
+            cls.table_fields = []
+            cls.field_mappings = {}
+            cls.table_name = getattr(cls, "table_name", cls.__name__)
+            for key, value in cls.__dict__.items():  # lll = dir(cls)
+                if isinstance(value, Field):
+                    cls.table_fields.append(key)
+                    cls.field_mappings[key] = value
+            for key in cls.table_fields:
+                delattr(cls, key)  # 删除属性 继承的父类属性无法删除
+        return super().__new__(cls, **kw)
+
     def __init__(self, **kw):
-        logging.info("初始化 {} 类, 创建实例\nattrs:{}\n".format(self.__class__.__name__, kw))
-        # self.__fields__ = []
-        # self.__mappings__ = {}  # 会调用 __setattr__()
-        self["__fields__"] = []
-        self["__mappings__"] = {}
-        for k, v in self.__class__.__dict__.items():
-            # {'__module__': 'models', '__table__': 'users', 'id': <orm.Field object at 0x7f90ff23ef28>,}
-            if isinstance(v, Field):
-                # self.__fields__.append(k)
-                # self.__mappings__[k] = v  # 保存表字段 , self.__mappings__ 会调用 __getattr__
-                self["__mappings__"][k] = v  # 保存表字段
-                self["__fields__"].append(k)
-        for key in self["__fields__"]:
-            # delattr(self, key)  # 删除实例属性
-            print(key)
-            setattr(self, key, kw[key])
-        # super(Model, self).__init__(**kw)  # 调用父类 dict 的__init__方法, 添加 kw
+        logging.info("初始化 {} 类, 创建实例\n{}\n".format(self.__class__.__name__, kw))
+        super(Model, self).__init__(**kw)  # 调用父类 dict 的__init__方法, 添加 kw
 
-    # def __getattr__(self, key):
-    #     # user.id 类属性
-    #     # user[id] 字典
-    #     # 当使用 user.id 时会访问类属性id，id不存在才会调用__getattr__，所以与 user[id] 不同
-    #     try:
-    #         return self[key]
-    #     except KeyError:
-    #         raise AttributeError(r"'Model' object has no attribute '%s'" % key)
+    def __getattr__(self, key):
+        # user.id 类属性
+        # user[id] 字典
+        # 当使用 user.id 时会访问类属性id，id不存在才会调用__getattr__，所以与 user[id] 不同
+        try:
+            # return self.get_value(key)
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Model' object has no attribute '%s'" % key)
 
-    # def __setattr__(self, key, value):
-    #     # 当__setattr__存在时，对 user.id 赋值不会修改类属性
-    #     self[key] = value
+    def __setattr__(self, key, value):
+        # 当__setattr__存在时，对 user.id 赋值不会修改类属性
+        self[key] = value
 
     def get_value(self, key):
         value = getattr(self, key, None)  # 访问对象的属性 key
-        # self[key], self["__mappings__"][key].default()
+        if value is None:  # 不存在则调用默认函数生成
+            value = self.field_mappings[key].default
+            if callable(value):
+                value = value()
+            setattr(self, key, value)
         return value
 
     def create_args(self):
-        escaped_fields = []
+        escaped_field = []
         args = []
-        for key in self["__fields__"]:
-            escaped_fields.append("`%s`" % key)
-            # 获取实例属性值, 不存在则调用默认函数生成
-            args.append(self.get_value(key))
-        # escaped_fields = ",".join(list(map(lambda f: "`%s`"%f, escaped_fields)))
-        escaped_fields = ",".join(escaped_fields)
-        return args, escaped_fields
+        for key in self.table_fields:
+            escaped_field.append("`%s`" % key)
+            args.append(self.get_value(key))  # 获取实例属性值
+        # escaped_field = ",".join(list(map(lambda f: "`%s`"%f, escaped_field)))
+        escaped_field = ",".join(escaped_field)
+        return args, escaped_field
 
     def create_args_string(self):
-        args_string = ",%s" * len(self["__fields__"])
+        args_string = ",%s" * len(self.table_fields)
         return args_string[1:]
 
     async def save(self):
         # 'insert into users (`email`,`password`,`id`) values (%s,%s,%s)', ("user3@mail","passwd",3000)
-        args, escaped_fields = self.create_args()
-        sql = "insert into `{}` ({}) values ({})".format(self.__table__, escaped_fields, self.create_args_string())
+        args, escaped_field = self.create_args()
+        sql = "insert into `{}` ({}) values ({})".format(self.table_name, escaped_field, self.create_args_string())
         await execute(sql, args)
 
     def find(self):

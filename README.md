@@ -26,3 +26,14 @@
 ## aiomysql
 * https://aiomysql.readthedocs.io
 * https://pymysql.readthedocs.io/en/latest/user/examples.html
+
+## Python中的下划线
+* 单下划线（_）
+    - 作为临时性的名称使用,分配了一个特定的名称，但是并不会在后面再次用到该名称,for _ in range(n):
+* 名称前的单下划线（如：_shahriar）
+    - “私有”。这有点类似于惯例，为了使其他人（或你自己）使用这些代码时将会知道以“_”开头的名称只供内部使用
+* 名称前的双下划线（如：__shahriar）
+    - Python中的这种用法是为了避免与子类定义的名称冲突,解释器会修改“__method_name”为“_ClassName__method_name”
+* 名称前后的双下划线（如：__init__）
+    - 这种用法表示Python中特殊的方法名,通常，你将会覆写这些方法，并在里面实现你所需要的功能，以便Python调用它们。例如，当定义一个类时，你经常会覆写“__init__”方法。
+    - https://docs.python.org/zh-cn/3/reference/datamodel.html?#special-method-names

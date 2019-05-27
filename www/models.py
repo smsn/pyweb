@@ -4,12 +4,9 @@ import uuid
 
 
 def next_id():
-    return "%015d%s000" % (int(time.time() * 1000), uuid.uuid4().hex)
+    return str(int(time.time() * 100000))[-10:]
+    # return "%015d%s000" % (int(time.time() * 1000), uuid.uuid4().hex)
     # "%015d"的意思：0代表不足位数的补0，这样可以确保相同的位数，15是位数也就是要得到到的字符串长度是15，d代表数字。
-
-
-def bool_false():
-    return False
 
 
 class User(Model):
@@ -17,18 +14,18 @@ class User(Model):
     # 实例属性通过__init__()方法初始化
     # 继承Model类方法，CURD 创建（Create）、更新（Update）、读取（Retrieve）和删除（Delete）
     # (field_name=None, field_type='varchar(100)', primary_key=False, default=None):
-    __table__ = 'users'
+    table_name = 'users'
     id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
     email = Field(field_type="varchar(50)")
     password = Field(field_type="varchar(50)")
-    admin = Field(field_type="boolean", default=bool_false)
+    admin = Field(field_type="boolean", default=False)
     name = Field(field_type="varchar(50)")
     avatar = Field(field_type="varchar(500)")
     created_at = Field(field_type="real", default=time.time)
 
 
 class Blog(Model):
-    __table__ = 'blogs'
+    table_name = 'blogs'
     id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
     user_id = Field(field_type="varchar(50)")
     user_name = Field(field_type="varchar(50)")
@@ -40,7 +37,7 @@ class Blog(Model):
 
 
 class Comment(Model):
-    __table__ = 'comments'
+    table_name = 'comments'
     id = Field(field_type="varchar(50)", primary_key=True, default=next_id)
     blog_id = Field(field_type="varchar(50)")
     user_id = Field(field_type="varchar(50)")
