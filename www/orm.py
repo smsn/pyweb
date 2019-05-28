@@ -72,27 +72,56 @@ class Field(object):
         return "{}:{} | {} | {}".format(self.__class__.__name__, self.field_type, self.primary_key, self.default)
 
 
-class Model(dict):
-    def __new__(cls, **kw):
-        if not hasattr(cls, "table_fields"):  # 如果存在 'table_fields' 属性返回 True
-            # 第一次处理父类时执行, 后续实例跳过
-            # 对每一个实例都会重复执行 , 使用元类处理父类
-            logging.info("处理 {} 类".format(cls.__name__))
-            cls.table_fields = []
-            cls.field_mappings = {}
-            cls.primary_key_field = None
-            cls.table_name = getattr(cls, "table_name", cls.__name__)
-            for key, value in cls.__dict__.items():  # lll = dir(cls)
-                if isinstance(value, Field):
-                    if value.primary_key:
-                        cls.primary_key_field = key
-                    cls.table_fields.append(key)
-                    cls.field_mappings[key] = value
-            if not cls.primary_key_field:
-                raise Exception('Primary key not found.')
-            for key in cls.table_fields:
-                delattr(cls, key)  # 删除属性 继承的父类属性无法删除
-        return super().__new__(cls, **kw)
+class ModelMetaclass(type):
+    def __new__(cls, name, bases, kwds):
+        logging.info("\n使用 {} 创建 {} 类, 继承自{}\nkwds:{}\n".format(cls, name, bases, kwds))
+        if "Model" == name:
+            return type.__new__(cls, name, bases, kwds)
+        table_name = kwds.get("table_name", name)
+        table_fields = []
+        field_mappings = {}
+        primary_key_field = None
+        for key, value in kwds.items():
+            if isinstance(value, Field):
+                table_fields.append(key)
+                field_mappings[key] = value
+                if value.primary_key:
+                    if primary_key_field:
+                        raise Exception("Duplicate primary key for field: {} | {}".format(
+                            key, primary_key_field))
+                    primary_key_field = key
+        if not primary_key_field:
+            raise Exception('Primary key not found.')
+        for key in table_fields:
+            kwds.pop(key)
+        kwds["table_name"] = table_name
+        kwds["table_fields"] = table_fields
+        kwds["field_mappings"] = field_mappings
+        kwds["primary_key_field"] = primary_key_field
+        return type.__new__(cls, name, bases, kwds)
+
+
+class Model(dict, metaclass=ModelMetaclass):
+    # def __new__(cls, **kw):  # 使用元类 此处删除
+    #     if not hasattr(cls, "table_fields"):  # 如果存在 'table_fields' 属性返回 True
+    #         # 第一次处理父类时执行, 后续实例跳过
+    #         # 对每一个实例都会重复执行 , 使用元类处理父类
+    #         logging.info("处理 {} 类".format(cls.__name__))
+    #         cls.table_fields = []
+    #         cls.field_mappings = {}
+    #         cls.primary_key_field = None
+    #         cls.table_name = getattr(cls, "table_name", cls.__name__)
+    #         for key, value in cls.__dict__.items():  # lll = dir(cls)
+    #             if isinstance(value, Field):
+    #                 if value.primary_key:
+    #                     cls.primary_key_field = key
+    #                 cls.table_fields.append(key)
+    #                 cls.field_mappings[key] = value
+    #         if not cls.primary_key_field:
+    #             raise Exception('Primary key not found.')
+    #         for key in cls.table_fields:
+    #             delattr(cls, key)  # 删除属性 继承的父类属性无法删除
+    #     return super().__new__(cls, **kw)
 
     def __init__(self, **kw):
         logging.info("初始化 {} 类, 创建实例\n{}\n".format(self.__class__.__name__, kw))
