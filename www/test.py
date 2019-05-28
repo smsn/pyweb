@@ -39,12 +39,24 @@ async def test_obj(loop):
     await user2.update()
     print()
     await user2.remove()
+    print(dir(user1))
     print()
+    print(dir(User))
+
+
+async def find(loop):
+    await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
+    user2 = User(name='user2', email='user2@example.com', password='user2pass', avatar='about:blank')
+    # 使用元类创建User类,以避免需要在实例初始化时修改User类
+    rs1 = await User.find_by_pri_key("3000")
+    print(rs1)
+    rs2 = await User.find_by_where("`id` like ?", ["30%"])
+    print(rs2)
 
 
 if __name__ == "__main__":
     # test_field()
     # test_obj()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(test_obj(loop))
+    loop.run_until_complete(find(loop))
     loop.run_forever()

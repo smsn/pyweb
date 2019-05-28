@@ -62,7 +62,7 @@ create table comments (
 -- >>> mysql_conn.commit()
 
 -- >>> cur.execute('update users set name='aaa' where id=2000')
--- >>> cur.execute('delete from where id=2000')
+-- >>> cur.execute('delete from users where id=2000')
 
 -- >>> cur.execute('SELECT * from users')
 -- >>> cur.fetchone()

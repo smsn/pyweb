@@ -161,6 +161,22 @@ class Model(dict):
             self.get_value(self.primary_key_field))
         await execute(sql)
 
-    def find(self):
-        pass
-        # 'select * from users
+    @classmethod
+    async def find_by_pri_key(cls, pri_key):
+        # 'select * from users where `id`=user_id
+        sql = "select * from `{}` where `{}`={}".format(
+            cls.table_name,
+            cls.primary_key_field,
+            pri_key)
+        result = await select(sql)
+        if len(result) == 0:
+            return None
+        return result[0]
+
+    @classmethod
+    async def find_by_where(cls, where, args=()):
+        # select * from users where `name` like "user%";
+        # select * from users where `name`="user1";
+        sql = "select * from `{}` where {}".format(cls.table_name, where)
+        result = await select(sql, args)
+        return result
