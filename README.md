@@ -74,15 +74,17 @@
 * 自动扫描 handlers.py 里的URL函数并添加路由
 * middlewares 中间件是可以修改请求或响应中的协程
     - https://aiohttp.readthedocs.io/en/stable/web_advanced.html#middlewares
-    - 在内部，通过以相反的顺序返回RequestHandler(request)的结果response
-    - middlewares=[logger_factory, response_factory, request_factory]
-    - 当有请求(request)时,执行情况如下:
-    - request_factory(app, hello) -> request_handler
-    - response_factory(app, request_handler) ->  response_handler
-    - logger_factory(app, response_handler) -> logger
-    -
-    - logger(request) -> ... -> await response_handler(request) -> ...
-        - response_handler(request) -> ... -> await request_handler(request) -> ...
-            - request_handler(request) -> ... -> await hello(request)
+    - 在内部，通过以相反的顺序返回RequestHandler(request)的结果response, 当有请求(request)时,执行情况如下:
+```
+    middlewares=[logger_factory, response_factory, request_factory]
+
+    request_factory(app, hello) -> request_handler
+    response_factory(app, request_handler) ->  response_handler
+    logger_factory(app, response_handler) -> logger
+
+    logger(request) -> ... -> await response_handler(request) -> ...
+        response_handler(request) -> ... -> await request_handler(request) -> ...
+            request_handler(request) -> ... -> await hello(request) -> ...
+```
 * request_factory 分析URL函数需要接收的参数，从request中获取必要的参数，调用URL函数
 * response_factory 构造web.Response
