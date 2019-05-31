@@ -1,5 +1,6 @@
+import logging
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
-import logging; logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 from aiohttp import web
 import asyncio
