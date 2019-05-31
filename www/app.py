@@ -1,7 +1,7 @@
 from aiohttp import web
 import asyncio
 import orm
-from web_frame import logger_factory, response_factory, request_factory, add_routes, add_static
+from web_frame import logger_factory, response_factory, request_factory, add_routes, add_static, init_jinja2
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -12,10 +12,11 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def init(loop):
-    # await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
+    await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
     app = web.Application(loop=loop, middlewares=[logger_factory, response_factory, request_factory])
     add_routes(app, 'handlers')
     add_static(app)
+    init_jinja2(app)
     # 参数 app.make_handler() 返回一个可调用对象。下面是源码里的代码,定义了__call__,返回一个请求处理函数
     # def __call__(self) -> RequestHandler:
     #     return RequestHandler(self, loop=self._loop, **self._kwargs)

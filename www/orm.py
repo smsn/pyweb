@@ -20,7 +20,7 @@ async def create_pool(loop, **kwargs):
     )
 
 
-async def select(sql, args=(), size=None):
+async def select(sql, args=None, size=None):
     # 查询
     logging.info('SQL: {}\n\tArgs: {}'.format(sql, args))
     # 使用async with 自动关闭
@@ -38,7 +38,7 @@ async def select(sql, args=(), size=None):
         return results  # 没有 conn.close() 连接复用
 
 
-async def execute(sql, args=(), autocommit=True):
+async def execute(sql, args=None, autocommit=True):
     # Insert, Update, Delete
     logging.info('\nSQL: {}\nArgs: {}\n'.format(sql, args))
     async with __pool.acquire() as conn:
@@ -182,9 +182,16 @@ class Model(dict, metaclass=ModelMetaclass):
         return result[0]
 
     @classmethod
-    async def find_by_where(cls, where, args=()):
+    async def find_by_where(cls, where, args=None):
         # select * from users where `name` like "user%";
         # select * from users where `name`="user1";
         sql = "select * from `{}` where {}".format(cls.table_name, where)
         result = await select(sql, args)
+        return result
+
+    @classmethod
+    async def find_all(cls):
+        # select * from `users` where `id` like '%'
+        where = "`{}` like '%'".format(cls.primary_key_field)
+        result = await cls.find_by_where(where)
         return result

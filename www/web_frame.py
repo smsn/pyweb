@@ -5,6 +5,8 @@ import asyncio
 import inspect
 import logging
 from aiohttp import web
+from jinja2 import FileSystemLoader
+import aiohttp_jinja2
 
 
 async def logger_factory(app, handler):
@@ -45,7 +47,7 @@ async def response_factory(app, handler):
                 return resp
             else:
                 resp = web.Response(
-                    body=app['__templating__'].get_template(template).render().encode('utf-8'))
+                    body=app['__templating__'].get_template(template).render(**rs).encode('utf-8'))
                 resp.content_type = "text/html;charset=utf-8"
                 return resp
         if isinstance(rs, tuple) and len(rs) == 2:
@@ -114,3 +116,19 @@ def add_static(app):
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     app.router.add_static('/static/', path)
     logging.info("add static {}".format(path))
+
+
+def init_jinja2(app, **kw):
+    logging.info("init_jinja2 ...")
+    options = dict(
+        autoescape=kw.get('autoescape', True),
+        block_start_string=kw.get('block_start_string', '{%'),
+        block_end_string=kw.get('block_end_string', '%}'),
+        variable_start_string=kw.get('variable_start_string', '{{'),
+        variable_end_string=kw.get('variable_end_string', '}}'),
+        auto_reload=kw.get('auto_reload', True))
+    path = kw.get('path', None)
+    if path is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+    env = aiohttp_jinja2.setup(app, loader=FileSystemLoader(path), **options)
+    app['__templating__'] = env

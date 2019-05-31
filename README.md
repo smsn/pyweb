@@ -80,7 +80,7 @@
     - request_factory(app, hello) -> request_handler
     - response_factory(app, request_handler) ->  response_handler
     - logger_factory(app, response_handler) -> logger
-    - -
+    -
     - logger(request) -> ... -> await response_handler(request) -> ...
         - response_handler(request) -> ... -> await request_handler(request) -> ...
             - request_handler(request) -> ... -> await hello(request)
