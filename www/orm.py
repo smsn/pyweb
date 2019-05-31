@@ -137,7 +137,7 @@ class Model(dict, metaclass=ModelMetaclass):
         return args, escaped_field
 
     def create_args_string(self):
-        args_string = ",%s" * len(self.table_fields)
+        args_string = ",?" * len(self.table_fields)
         return args_string[1:]
 
     async def save(self):
@@ -162,20 +162,19 @@ class Model(dict, metaclass=ModelMetaclass):
 
     async def remove(self):
         # 'delete from `users` where `id`=?'
-        sql = "delete from `{}` where `{}`={}".format(
+        args = [self.get_value(self.primary_key_field)]
+        sql = "delete from `{}` where `{}`=?".format(
             self.table_name,
-            self.primary_key_field,
-            self.get_value(self.primary_key_field))
-        await execute(sql)
+            self.primary_key_field)
+        await execute(sql, args)
 
     @classmethod
     async def find_by_pri_key(cls, pri_key):
         # 'select * from users where `id`=user_id
-        sql = "select * from `{}` where `{}`={}".format(
+        sql = "select * from `{}` where `{}`=?".format(
             cls.table_name,
-            cls.primary_key_field,
-            pri_key)
-        result = await select(sql)
+            cls.primary_key_field)
+        result = await select(sql, [pri_key])
         if len(result) == 0:
             return None
         return result[0]
@@ -191,6 +190,6 @@ class Model(dict, metaclass=ModelMetaclass):
     @classmethod
     async def find_all(cls):
         # select * from `users` where `id` like '%'
-        where = "`{}` like '%'".format(cls.primary_key_field)
-        result = await cls.find_by_where(where)
+        where = "`{}` like ?".format(cls.primary_key_field)
+        result = await cls.find_by_where(where, ["%"])
         return result
