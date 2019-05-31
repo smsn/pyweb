@@ -1,10 +1,10 @@
 # learn python web
 
 ## asyncio
-* yield、回调、事件循环
-
-## aiohttp
-* 异步 HTTP 客户端和服务端
+* https://docs.python.org/zh-cn/3/library/asyncio-llapi-index.html
+* 深入理解Python异步编程
+    - http://python.jobbole.com/88291/
+* 使用yield、yield from、回调、事件循环, 实现一个异步爬虫(基于生成器的协程)
 
 ## orm
 * 对象关系映射 Object Relational Mapping
@@ -12,7 +12,7 @@
 * 这些访问数据库的代码如果分散到各个函数中，势必无法维护，也不利于代码复用。
 * 所以，我们要首先把常用的SELECT、INSERT、UPDATE和DELETE操作用函数封装起来。
 
-## mysql
+## mysql(mariadb)
 * https://wiki.jikexueyuan.com/project/linux/mysql.html
 * https://zh.wikipedia.org/zh-hans/数据库事务
 
@@ -28,7 +28,8 @@
 * https://pymysql.readthedocs.io/en/latest/user/examples.html
 
 ## Python中的下划线和 special-method
-* https://docs.python.org/zh-cn/3/reference/datamodel.html?#special-method-names
+* special-method
+    - https://docs.python.org/zh-cn/3/reference/datamodel.html?#special-method-names
 * 单下划线（_）
     - 作为临时性的名称使用,分配了一个特定的名称，但是并不会在后面再次用到该名称,for _ in range(n):
 * 名称前的单下划线（如：_shahriar）
@@ -43,3 +44,45 @@
     - 先不使用元类 --> 发现问题 --> 可以使用元类解决
 * 作用:定制类
     - 定义metaclass，就可以对类加工修改,创建符合要求的类。
+
+## 函数注释(可选)
+* https://www.python.org/dev/peps/pep-3107/
+* 注释始终位于参数的默认值之前
+```
+    >>> def foobar(a: 1+1, b: "it's b", c: str = 5) -> tuple:
+    ...     return a, b, c
+    >>> foobar.__annotations__
+    {'a': 2, 'b': "it's b", 'c': <class 'str'>, 'return': <class 'tuple'>}
+    >>> foobar(1,2)
+    (1, 2, 5)
+    >>> foobar(1,2,3)
+    (1, 2, 3)
+```
+
+## 实现一个简单的web server
+* http://python.jobbole.com/81820/?utm_source=blog.jobbole.com&utm_medium=relatedPosts
+
+## 实现一个简单的web框架(WSGI, PEP333)
+* https://dantangfan.github.io/2015/04/15/how-to-make-a-python-web-framework.html
+
+## aiohttp
+* 异步 HTTP 客户端和服务端
+* https://aiohttp.readthedocs.io
+
+
+## 实现一个简单的基于aiohttp的web框架
+* 自动扫描 handlers.py 里的URL函数并添加路由
+* middlewares 中间件是可以修改请求或响应中的协程
+    - https://aiohttp.readthedocs.io/en/stable/web_advanced.html#middlewares
+    - 在内部，通过以相反的顺序返回RequestHandler(request)的结果response
+    - middlewares=[logger_factory, response_factory, request_factory]
+    - 当有请求(request)时,执行情况如下:
+    - request_factory(app, hello) -> request_handler
+    - response_factory(app, request_handler) ->  response_handler
+    - logger_factory(app, response_handler) -> logger
+    - -
+    - logger(request) -> ... -> await response_handler(request) -> ...
+        - response_handler(request) -> ... -> await request_handler(request) -> ...
+            - request_handler(request) -> ... -> await hello(request)
+* request_factory 分析URL函数需要接收的参数，从request中获取必要的参数，调用URL函数
+* response_factory 构造web.Response

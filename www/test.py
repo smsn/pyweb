@@ -1,5 +1,4 @@
 from models import User
-# , Blog, Comment
 import orm
 import asyncio
 
@@ -44,7 +43,7 @@ async def test_obj(loop):
     print(dir(User))
 
 
-async def find(loop):
+async def test_find(loop):
     await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
     # user2 = User(name='user2', email='user2@example.com', password='user2pass', avatar='about:blank')
     # 使用元类创建User类,以避免需要在实例初始化时修改User类
@@ -58,5 +57,5 @@ if __name__ == "__main__":
     # test_field()
     # test_obj()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(find(loop))
+    loop.run_until_complete(test_find(loop))
     loop.run_forever()
