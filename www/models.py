@@ -4,8 +4,7 @@ import uuid
 
 
 def next_id():
-    return str(int(time.time() * 100000))[-10:]
-    # return "%015d%s000" % (int(time.time() * 1000), uuid.uuid4().hex)
+    return "%015d%s000" % (int(time.time() * 1000), uuid.uuid4().hex)
     # "%015d"的意思：0代表不足位数的补0，这样可以确保相同的位数，15是位数也就是要得到到的字符串长度是15，d代表数字。
 
 

@@ -1,13 +1,12 @@
 import asyncio
 import aiomysql
 import logging
-logging.basicConfig(level=logging.INFO)
 
 
 async def create_pool(loop, **kwargs):
     # 创建连接池
     # **kwargs 关键字参数 eg:city='Beijing'  kwargs={'city': 'Beijing'}
-    logging.info("create database connection pool ...")
+    logging.info("Create database connection pool ...")
     global __pool
     __pool = await aiomysql.create_pool(
         host=kwargs.get("host", "localhost"),  # 默认localhost
@@ -22,7 +21,7 @@ async def create_pool(loop, **kwargs):
 
 async def select(sql, args=None, size=None):
     # 查询
-    logging.info('SQL: {}\n\tArgs: {}'.format(sql, args))
+    logging.info('SQL: {}  |  Args: {}'.format(sql, args))
     # 使用async with 自动关闭
     #    await cursor.close()
     #    conn.close()
@@ -34,13 +33,13 @@ async def select(sql, args=None, size=None):
                 results = await cur.fetchmany(size)
             else:
                 results = await cur.fetchall()
-        logging.info('rows returned: %s' % len(results))
+        logging.info('Rows returned: {}'.format(len(results)))
         return results  # 没有 conn.close() 连接复用
 
 
 async def execute(sql, args=None, autocommit=True):
     # Insert, Update, Delete
-    logging.info('\nSQL: {}\nArgs: {}\n'.format(sql, args))
+    logging.info('SQL: {}  |  Args: {}'.format(sql, args))
     async with __pool.acquire() as conn:
         if not autocommit:
             await conn.begin()  # 开始事务  A coroutine to begin transaction.
@@ -51,7 +50,7 @@ async def execute(sql, args=None, autocommit=True):
             if not autocommit:
                 await conn.commit()  # 提交事务
         except BaseException as e:
-            logging.warning("execute fail: {}".format(e))
+            logging.warning("Execute fail: {}".format(e))
             if not autocommit:
                 await conn.rollback()  # 回滚 原子性（Atomicity）
             raise
@@ -74,7 +73,7 @@ class Field(object):
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, kwds):
-        logging.info("使用 {} 创建 {} 类, 继承自{}\n".format(cls, name, bases))
+        logging.debug("使用 {} 创建 {} 类, 继承自{}".format(cls, name, bases))
         if "Model" == name:
             return type.__new__(cls, name, bases, kwds)
         table_name = kwds.get("table_name", name)
@@ -103,7 +102,7 @@ class ModelMetaclass(type):
 
 class Model(dict, metaclass=ModelMetaclass):
     def __init__(self, **kw):
-        logging.info("初始化 {} 类, 创建实例\n{}\n".format(self.__class__.__name__, kw))
+        logging.debug("初始化 {} 类, 创建实例\t{}".format(self.__class__.__name__, kw))
         super(Model, self).__init__(**kw)  # 调用父类 dict 的__init__方法, 添加 kw
 
     def __getattr__(self, key):

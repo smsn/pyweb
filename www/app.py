@@ -1,14 +1,11 @@
+LOG_FORMAT = '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
+import logging; logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+
 from aiohttp import web
 import asyncio
 import orm
-from web_frame import logger_factory, response_factory, request_factory, add_routes, add_static, init_jinja2
-
-import logging
-logging.basicConfig(level=logging.INFO)
-# LOG_FORMAT = "%(asctime)s - %(message)s"
-# logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
-# logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
-# logging.basicConfig(level=logging.WARNING, format=LOG_FORMAT)
+from web_frame import (add_routes, add_static, init_jinja2, logger_factory,
+                       request_factory, response_factory)
 
 
 async def init(loop):
@@ -21,7 +18,7 @@ async def init(loop):
     # def __call__(self) -> RequestHandler:
     #     return RequestHandler(self, loop=self._loop, **self._kwargs)
     server = await loop.create_server(app.make_handler(), host='0.0.0.0', port=8080)
-    logging.info('server started at http://0.0.0.0:8080 ...')
+    logging.info('Server started at http://0.0.0.0:8080 ...')
     return server
 
 loop = asyncio.get_event_loop()

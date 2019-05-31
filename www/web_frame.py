@@ -11,10 +11,10 @@ import aiohttp_jinja2
 
 async def logger_factory(app, handler):
     async def logger(request):
-        logging.info("[logger_factory]  :request:{} {}  start handle by {}".format(
-            request.method, request.path, handler))
+        logging.info("({}, {}) request start.".format(
+            request.method, request.path))
         rs = await handler(request)  # handler 是 response_factory.response_handler
-        logging.info("[logger_factory]  :request:{} {}  end. -> {} {}".format(
+        logging.info("({}, {}) request end.  --> ({}, {})".format(
             request.method, request.path, rs.status, rs.reason))
         return rs
     return logger  # middlewares 是 callable
@@ -22,9 +22,9 @@ async def logger_factory(app, handler):
 
 async def response_factory(app, handler):
     async def response_handler(request):
-        logging.info("[response_factory]:wait response body by {}".format(handler))
+        logging.debug("[response_factory]:wait response body by {}".format(handler))
         rs = await handler(request)  # handler 是 request_factory.request_handler
-        logging.info("[response_factory]:make response body (type:{} | len:{})".format(type(rs), len(rs)))
+        logging.debug("[response_factory]:make response body (type:{} | len:{})".format(type(rs), len(rs)))
         if isinstance(rs, web.StreamResponse):
             return rs
         if isinstance(rs, bytes):
@@ -60,14 +60,14 @@ async def response_factory(app, handler):
 
 async def request_factory(app, handler):
     async def request_handler(request):
-        logging.info("[request_factory] :request_handler start.")
+        logging.debug("[request_factory]:request_handler start.")
         if request.method == 'GET':
             pass
         if request.method == 'POST':
             pass
-        logging.info("[request_factory] :get response by {}".format(handler))
+        logging.debug("[request_factory]:get response by {}".format(handler))
         rs = await handler(request)  # handler 是 hello
-        logging.info("[request_factory] :get response ok.")
+        logging.debug("[request_factory]:get response ok.")
         return rs
     return request_handler
 
@@ -109,17 +109,17 @@ def add_routes(app, module_name):
             if not asyncio.iscoroutinefunction(handler) and not inspect.isgeneratorfunction(handler):
                 handler = asyncio.coroutine(handler)
             app.router.add_route(method, path, handler)
-            logging.info("add route {} {}".format(method, path))
+            logging.info("Add route {} {}".format(method, path))
 
 
 def add_static(app):
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     app.router.add_static('/static/', path)
-    logging.info("add static {}".format(path))
+    logging.info("Add static {}".format(path))
 
 
 def init_jinja2(app, **kw):
-    logging.info("init_jinja2 ...")
+    logging.info("Init jinja2 ...")
     options = dict(
         autoescape=kw.get('autoescape', True),
         block_start_string=kw.get('block_start_string', '{%'),
