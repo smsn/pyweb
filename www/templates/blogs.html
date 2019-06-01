@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+{% for blog in blogs %}
+<article class="am-g blog-entry-article">
+    <div class="am-u-lg-6 am-u-md-12 am-u-sm-12 blog-entry-img">
+        <img src="../static/img/f10.jpg" alt="" class="am-u-sm-12">
+    </div>
+    <div class="am-u-lg-6 am-u-md-12 am-u-sm-12 blog-entry-text">
+        <h1><a href="/blog/{{ blog.id }}">{{ blog.title }}</a></h1>
+        <span><a href="" class="blog-color">article | </a></span>
+        <span> @{{ blog.user_name }} | </span>
+        <span>发表于 {{ blog.created_at|datetime_filter }}</span>
+        <p>{{ blog.summary }}</p>
+        <p><a href="/blog/{{ blog.id }}" class="blog-continue">继续阅读</a></p>
+    </div>
+</article>
+{% endfor %}
+{% endblock %}

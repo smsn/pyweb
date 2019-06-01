@@ -7,6 +7,8 @@ import logging
 from aiohttp import web
 from jinja2 import FileSystemLoader
 import aiohttp_jinja2
+import time
+from datetime import datetime
 
 
 async def logger_factory(app, handler):
@@ -118,6 +120,20 @@ def add_static(app):
     logging.info("Add static {}".format(path))
 
 
+def datetime_filter(created_at):
+    _time = int(time.time() - created_at)
+    if _time < 60:
+        return '1分钟前'
+    if _time < 3600:
+        return '{}分钟前'.format(_time // 60)
+    if _time < 86400:
+        return '{}小时前'.format(_time // 3600)
+    if _time < 604800:
+        return '{}天前'.format(_time // 86400)
+    dt = datetime.fromtimestamp(created_at)
+    return '{}年{}月{}日'.format(dt.year, dt.month, dt.day)
+
+
 def init_jinja2(app, **kw):
     logging.info("Init jinja2 ...")
     options = dict(
@@ -131,4 +147,8 @@ def init_jinja2(app, **kw):
     if path is None:
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
     env = aiohttp_jinja2.setup(app, loader=FileSystemLoader(path), **options)
+    filters = kw.get('filters', None)
+    if filters is not None:
+        for name, func in filters.items():
+            env.filters[name] = func
     app['__templating__'] = env
