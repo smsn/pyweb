@@ -1,3 +1,6 @@
+from config import configs
+db = configs["database"]
+
 import logging
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
@@ -10,7 +13,7 @@ from web_frame import (add_routes, add_static, init_jinja2, logger_factory,
 
 
 async def init(loop):
-    await orm.create_pool(user='pyweb', password='pyweb', db='pyweb_db', loop=loop)
+    await orm.create_pool(user=db['user'], password=db['password'], db=db['db'], loop=loop)
     app = web.Application(loop=loop, middlewares=[logger_factory, response_factory, request_factory])
     add_routes(app, 'handlers')
     add_static(app)
