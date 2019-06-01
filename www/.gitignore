@@ -1,14 +1,4 @@
 env
 __pycache__
 /static/img/
-static/css/admin.css
-static/css/amazeui.css
-static/css/amazeui.flat.css
-static/css/amazeui.flat.min.css
-static/css/amazeui.min.css
-static/css/app.css
-static/css/lw-admin.css
-static/css/uikit.css
-static/css/uikit.min.css
-static/css/uikit-rtl.css
-static/css/uikit-rtl.min.css
+/static/
