@@ -13,6 +13,9 @@ config_default = {
         'db': 'pyweb_db',
         'host': 'localhost',
         "port": 3306
+    },
+    'session': {
+        'secret': 'COOKIE_KEY_wr4sw4rqka25f'
     }
 }
 
