@@ -21,7 +21,7 @@ async def create_pool(loop, **kwargs):
 
 async def select(sql, args, size=None):
     # 查询
-    logging.info('SQL: {}  |  Args: {}'.format(sql, args))
+    logging.info('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
     # 使用async with 自动关闭
     #    await cursor.close()
     #    conn.close()
@@ -39,7 +39,7 @@ async def select(sql, args, size=None):
 
 async def execute(sql, args, autocommit=True):
     # Insert, Update, Delete
-    logging.info('SQL: {}  |  Args: {}'.format(sql, args))
+    logging.info('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
     async with __pool.acquire() as conn:
         if not autocommit:
             await conn.begin()  # 开始事务  A coroutine to begin transaction.
