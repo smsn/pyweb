@@ -19,7 +19,7 @@ async def create_pool(loop, **kwargs):
     )
 
 
-async def select(sql, args=None, size=None):
+async def select(sql, args, size=None):
     # 查询
     logging.info('SQL: {}  |  Args: {}'.format(sql, args))
     # 使用async with 自动关闭
@@ -28,7 +28,7 @@ async def select(sql, args=None, size=None):
     async with __pool.acquire() as conn:  # 创建连接 conn=await aiomysql.connect()
         async with conn.cursor(aiomysql.DictCursor) as cur:
             # 创建游标对象 cursor=await conn.cursor() , DictCursor 将结果作为字典返回的游标
-            await cur.execute(sql.replace('?', '%s'), args)  # 执行 cursor.execute("SELECT * FROM t1 WHERE id=%s", (5,))
+            await cur.execute(sql.replace('?', '%s'), args or ())  # 执行 cursor.execute("SELECT * FROM t1 WHERE id=%s", (5,))
             if size:
                 results = await cur.fetchmany(size)
             else:
@@ -37,7 +37,7 @@ async def select(sql, args=None, size=None):
         return results  # 没有 conn.close() 连接复用
 
 
-async def execute(sql, args=None, autocommit=True):
+async def execute(sql, args, autocommit=True):
     # Insert, Update, Delete
     logging.info('SQL: {}  |  Args: {}'.format(sql, args))
     async with __pool.acquire() as conn:
@@ -45,7 +45,7 @@ async def execute(sql, args=None, autocommit=True):
             await conn.begin()  # 开始事务  A coroutine to begin transaction.
         try:
             async with conn.cursor(aiomysql.DictCursor) as cur:
-                await cur.execute(sql.replace('?', '%s'), args)
+                await cur.execute(sql.replace('?', '%s'), args or ())
                 affected = cur.rowcount  # 受影响的行数
             if not autocommit:
                 await conn.commit()  # 提交事务
@@ -148,7 +148,9 @@ class Model(dict, metaclass=ModelMetaclass):
             self.table_name,
             ",".join(escaped_field),
             self.create_args_string())
-        await execute(sql, args)
+        rows = await execute(sql, args)
+        if rows != 1:
+            logging.warning('Failed to insert record: affected rows: {}'.format(rows))
 
     async def update(self):
         # update users set name='aaa',id="2000" where id=2000
@@ -158,7 +160,9 @@ class Model(dict, metaclass=ModelMetaclass):
             ",".join(map(lambda f: '%s=?'%f, escaped_field)),
             self.primary_key_field,
             self.get_value(self.primary_key_field))
-        await execute(sql, args)
+        rows = await execute(sql, args)
+        if rows != 1:
+            logging.warning('Failed to update by primary key: affected rows: {}'.format(rows))
 
     async def remove(self):
         # 'delete from `users` where `id`=?'
@@ -166,30 +170,55 @@ class Model(dict, metaclass=ModelMetaclass):
         sql = "delete from `{}` where `{}`=?".format(
             self.table_name,
             self.primary_key_field)
-        await execute(sql, args)
+        rows = await execute(sql, args)
+        if rows != 1:
+            logging.warning('Failed to remove by primary key: affected rows: {}'.format(rows))
 
     @classmethod
     async def find_by_pri_key(cls, pri_key):
-        # 'select * from users where `id`=user_id
+        # select * from users where `id`=user_id
         sql = "select * from `{}` where `{}`=?".format(
             cls.table_name,
             cls.primary_key_field)
-        result = await select(sql, [pri_key])
+        result = await select(sql, [pri_key], 1)
         if len(result) == 0:
             return None
-        return result[0]
+        return cls(**result[0])
 
     @classmethod
-    async def find_by_where(cls, where, args=None):
-        # select * from users where `name` like "user%";
-        # select * from users where `name`="user1";
-        sql = "select * from `{}` where {}".format(cls.table_name, where)
-        result = await select(sql, args)
-        return result
+    async def find_count(cls, field="*", where=None, args=None):  # 统计行数
+        # select count(*) from users where admin=1;
+        sql = ["select count({}) _num from `{}`".format(field, cls.table_name)]
+        if where:  # 添加 where
+            sql.append("where")
+            sql.append(where)
+        result = await select(' '.join(sql), args, 1)
+        if len(result) == 0:
+            return None
+        return result[0]['_num']
 
     @classmethod
-    async def find_all(cls):
-        # select * from `users` where `id` like '%'
-        where = "`{}` like ?".format(cls.primary_key_field)
-        result = await cls.find_by_where(where, ["%"])
-        return result
+    async def find_all(cls, where=None, order_by=None, limit=None, args=None, **kw):
+        # select * from `users` where `id` like '30%' order by created_at desc limit 0,2;
+        sql = ["select * from `{}`".format(cls.table_name)]
+        if args is None:
+            args = []
+        if where:  # 添加 where
+            sql.append("where")
+            sql.append(where)
+        if order_by:  # 添加 order by
+            sql.append("order by")
+            sql.append(order_by)
+        if limit:  # 添加 limit
+            sql.append("limit")
+            if isinstance(limit, int):  # 如果limit为一个整数n，那就将查询结果的前n个结果返回
+                sql.append("?")
+                args.append(limit)
+            elif isinstance(limit, tuple) and len(limit) == 2:
+                # 如果limit为tuple，则前一个值代表索引，后一个值代表从这个索引开始要取的结果数
+                sql.append("?, ?")
+                args.extend(limit)  # 用extend把tuple的小括号去掉
+            else:
+                raise ValueError('Invalid limit value: {}'.format(limit))
+        result = await select(' '.join(sql), args)
+        return [cls(**r) for r in result]  # 将结果转换成对象实例
