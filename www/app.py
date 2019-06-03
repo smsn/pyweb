@@ -3,7 +3,10 @@ db = configs["database"]
 
 import logging
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+level = logging.INFO
+if configs['debug']:
+    level = logging.DEBUG
+logging.basicConfig(level=level, format=LOG_FORMAT)
 
 from aiohttp import web
 import asyncio

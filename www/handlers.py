@@ -8,7 +8,7 @@ from api import APIError, APIValueError, APIResourceNotFoundError, APIPermission
 from config import configs
 
 _COOKIE_NAME = 'pi_session'
-_COOKIE_KEY = configs[session][secret]
+_COOKIE_KEY = configs['session']['secret']
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
@@ -49,6 +49,10 @@ class Page(object):
         return "total:{}, page_index:{}, page_size:{}, page_count:{}, start_index:{}, limit_num:{}, has_next:{}, has_previous:{}".format(self.total, self.page_index, self.page_size, self.page_count, self.start_index, self.limit_num, self.has_next, self.has_previous)
 
     __repr__ = __str__
+
+
+def user2cookie(user, max_age):
+    return "666"
 
 
 @get('/api/users')
