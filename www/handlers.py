@@ -76,14 +76,14 @@ async def api_register_user(*, email, name, password):
         raise APIValueError('email')
     if not password or not _RE_SHA1.match(password):
         raise APIValueError('password')
-    users = await User.find_all(where='email=?', args=[email])
-    if len(users) > 0:
+    users = await User.find_count(where='email=?', args=[email])
+    if users:
         raise APIError('register:failed', 'email', 'Email already exists.')
     user_id = next_id()
     # hexdigest()函数将hash对象转换成16进制表示的字符串
     sha1_password = hashlib.sha1('{}:{}'.format(user_id, password).encode('utf-8')).hexdigest()
     avatar = "http://www.gravatar.com/avatar/{}?d=mm&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
-    user = User(id=user_id, name=name.strip(), password=sha1_password, avatar=avatar)
+    user = User(id=user_id, name=name.strip(), email=email, password=sha1_password, avatar=avatar)
     await user.save()
     resp = web.Response()
     resp.set_cookie(_COOKIE_NAME, user2cookie(user, 600), max_age=600, httponly=True)

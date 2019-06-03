@@ -81,18 +81,18 @@ class RequestHandler(object):
             # 有 **kw 或 命名关键字参数
             if request.method == 'POST':
                 if not request.content_type:
-                    return web.HTTPBadRequest('No content_type.')
+                    return web.HTTPBadRequest(text='No content_type.')
                 content_type = request.content_type.lower()
                 if content_type.startswith('application/json'):
                     params = await request.json()
                     if not isinstance(params, dict):
-                        return web.HTTPBadRequest('Body must be json.')
+                        return web.HTTPBadRequest(text='Body must be json.')
                     kw = params
                 elif content_type.startswith('application/x-www-form-urlencoded') or content_type.startswith('multipart/form-data'):
                     params = await request.post()
                     kw = dict(**params)
                 else:
-                    return web.HTTPBadRequest('Unsupported Content-Type: {}.'.format(request.content_type))
+                    return web.HTTPBadRequest(text='Unsupported Content-Type: {}.'.format(request.content_type))
             if request.method == 'GET':
                 query_string = request.query_string
                 if query_string:
@@ -122,7 +122,7 @@ class RequestHandler(object):
         # if self.get_required_kw_args:
         for name in self.get_required_kw_args:
             if name not in kw:
-                return web.HTTPBadRequest('Missing argument: {}.'.format(name))
+                return web.HTTPBadRequest(text='Missing argument: {}.'.format(name))
         logging.debug("[RequestHandler]:get response by: {}({})".format(self.func_name, str(kw)))
         try:
             rs = await self.func(**kw)
@@ -136,8 +136,8 @@ class RequestHandler(object):
 
 async def logger_factory(app, handler):
     async def logger(request):
-        logging.info("({}, {}) request start.".format(
-            request.method, request.path))
+        logging.info("({}, {}) request start handler by: {}.".format(
+            request.method, request.path, handler))
         rs = await handler(request)  # handler 是 response_factory.response_handler
         logging.info("({}, {}) request end.  --> ({}, {})".format(
             request.method, request.path, rs.status, rs.reason))
