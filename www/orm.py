@@ -102,7 +102,7 @@ class ModelMetaclass(type):
 
 class Model(dict, metaclass=ModelMetaclass):
     def __init__(self, **kw):
-        logging.debug("初始化 {} 类, 创建实例\t{}".format(self.__class__.__name__, kw))
+        logging.debug("初始化 {} 类, 创建实例 --> {}".format(self.__class__.__name__, kw))
         super(Model, self).__init__(**kw)  # 调用父类 dict 的__init__方法, 添加 kw
 
     def __getattr__(self, key):
