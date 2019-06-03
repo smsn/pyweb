@@ -1,4 +1,5 @@
 import re
+import time
 import json
 import hashlib
 from aiohttp import web
@@ -52,7 +53,11 @@ class Page(object):
 
 
 def user2cookie(user, max_age):
-    return "666"
+    # "用户id" + "过期时间" + SHA1("用户id" + "用户口令" + "过期时间" + "SecretKey")
+    expiration_date = str(int(time.time() + max_age))
+    _s = "{}-{}-{}-{}".format(user.id, user.password, expiration_date, _COOKIE_KEY)
+    _l = [user.id, expiration_date, hashlib.sha1(_s.encode('utf-8')).hexdigest()]
+    return "-".join(_l)
 
 
 @get('/api/users')
@@ -66,6 +71,27 @@ async def api_get_users(*, page='1'):
     for user in users:
         user.password = '******'
     return dict(page=_p, users=users)
+
+
+@post('/api/signin')
+async def api_signin(*, email, password):
+    if not email:
+        raise APIValueError('email')
+    if not password:
+        raise APIValueError('password')
+    user = await User.find_all(where='emali=?', args=[email])
+    if len(user) == 0:
+        raise APIValueError('email', 'Email not exists.')
+    user = user[0]
+    sha1_password = hashlib.sha1('{}:{}'.format(user.id, password).encode('utf-8')).hexdigest()
+    if user.password != sha1_password:
+        raise APIValueError('password', 'Wrong password.')
+    resp = web.Response()
+    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=864600, httponly=True)
+    user.password = '******'
+    resp.content_type = 'application/json'
+    resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    return resp
 
 
 @post('/api/register')
