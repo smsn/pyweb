@@ -80,5 +80,9 @@
         response_handler(request) -> ... -> await request_handler(request) -> ...
             request_handler(request) -> ... -> await hello(request) -> ...
 ```
-* `request_factory`: 分析URL函数需要接收的参数, 从`request`中获取必要的参数, 调用URL函数
+* `request_factory`: 在调用URL函数前可以拦截请求等
 * `response_factory`: 构造`web.Response`
+* `RequestHandler`: 分析URL函数需要接收的参数, 包装URL函数传递给路由, 当有请求时, 从`request`中获取必要的参数, 调用URL函数
+
+# `inspect` 函数参数分析
+* https://docs.python.org/zh-cn/3/library/inspect.html
