@@ -2,22 +2,41 @@ import re
 import time
 import json
 import hashlib
+import logging
+import functools
 from aiohttp import web
-from web_frame import get, post
 from models import next_id, User, Blog, Comment
 from api import APIError, APIValueError, APIResourceNotFoundError, APIPermissionError
 from config import configs
 
-_COOKIE_NAME = 'pi_session'
-_COOKIE_KEY = configs['session']['secret']
+_COOKIE_NAME = configs['session']['cookie_name']
+_COOKIE_KEY = configs['session']['secret_key']
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
 
-@get('/')
-async def index(request):
-    blogs = await Blog.find_all()
-    return {"__template__": "blogs.html", "blogs": blogs}
+def get(path):
+    def decorator(func):
+        # functools.wraps 可以将原函数对象的指定属性复制给包装函数对象,
+        # 默认有 __module__、__name__、__doc__
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            return func(*args, **kw)
+        wrapper.method = 'GET'
+        wrapper.path = path
+        return wrapper
+    return decorator
+
+
+def post(path):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            return func(*args, **kw)
+        wrapper.method = 'POST'
+        wrapper.path = path
+        return wrapper
+    return decorator
 
 
 def get_page_index(page):
@@ -60,6 +79,35 @@ def user2cookie(user, max_age):
     return "-".join(_l)
 
 
+async def cookie2user(cookie_str):
+    if not cookie_str:
+        return None
+    try:
+        _l = cookie_str.split('-')
+        if len(_l) != 3:
+            return None
+        user_id, expiration_date, sha1 = _l
+        if int(expiration_date) < time.time():
+            return None
+        user = await User.find_by_pri_key(user_id)
+        if user is None:
+            return None
+        _s = "{}-{}-{}-{}".format(user_id, user.password, expiration_date, _COOKIE_KEY)
+        if sha1 != hashlib.sha1(_s.encode('utf-8')).hexdigest():
+            return None
+        user.password = '******'
+        return user
+    except Exception as e:
+        logging.warning('cookie2user wrong: {}'.format(e))
+        return None
+
+
+@get('/')
+async def index(request):
+    blogs = await Blog.find_all()
+    return {"__template__": "blogs.html", "blogs": blogs}
+
+
 @get('/api/users')
 async def api_get_users(*, page='1'):
     page_index = get_page_index(page)
@@ -79,7 +127,7 @@ async def api_signin(*, email, password):
         raise APIValueError('email')
     if not password:
         raise APIValueError('password')
-    user = await User.find_all(where='emali=?', args=[email])
+    user = await User.find_all(where='email=?', args=[email])
     if len(user) == 0:
         raise APIValueError('email', 'Email not exists.')
     user = user[0]
@@ -87,7 +135,7 @@ async def api_signin(*, email, password):
     if user.password != sha1_password:
         raise APIValueError('password', 'Wrong password.')
     resp = web.Response()
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=864600, httponly=True)
+    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
     user.password = '******'
     resp.content_type = 'application/json'
     resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
