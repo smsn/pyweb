@@ -108,6 +108,24 @@ async def index(request):
     return {"__template__": "blogs.html", "blogs": blogs}
 
 
+@get('/register')
+async def register():
+    return {"__template__": "register.html"}
+
+
+@get('/signin')
+async def signin():
+    return {"__template__": "signin.html"}
+
+
+@get('/signout')
+async def signout(request):
+    referer = request.headers.get("Referer")
+    resp = web.HTTPFound(referer or '/')
+    resp.set_cookie(_COOKIE_NAME, "-deleted-", max_age=0, httponly=True)
+    return resp
+
+
 @get('/api/users')
 async def api_get_users(*, page='1'):
     page_index = get_page_index(page)

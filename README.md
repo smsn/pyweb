@@ -86,3 +86,7 @@
 
 ## `inspect`模块, 函数参数分析
 * https://docs.python.org/zh-cn/3/library/inspect.html
+
+## Chromium
+* 禁止缓存, 修改css等可立即生效
+* DevTools --> Network --> Disable cache
