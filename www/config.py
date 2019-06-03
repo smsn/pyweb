@@ -15,7 +15,8 @@ config_default = {
         "port": 3306
     },
     'session': {
-        'secret': 'COOKIE_KEY_wr4sw4rqka25f'
+        'secret_key': 'COOKIE_KEY_wr4sw4rqka25f',
+        'cookie_name': 'COOKIE_NAME_pyweb'
     }
 }
 
