@@ -1,4 +1,3 @@
-import functools
 import os
 import json
 import asyncio
@@ -11,6 +10,7 @@ import aiohttp_jinja2
 import time
 from datetime import datetime
 from api import APIError
+from handlers import _COOKIE_NAME, cookie2user
 
 
 class ParameterInspect(object):
@@ -138,17 +138,37 @@ async def logger_factory(app, handler):
     async def logger(request):
         logging.info("({}, {}) request start handler by: {}.".format(
             request.method, request.path, handler))
-        rs = await handler(request)  # handler 是 response_factory.response_handler
+        rs = await handler(request)  # handler 是 request_factory.request_handler
         logging.info("({}, {}) request end.  --> ({}, {})".format(
             request.method, request.path, rs.status, rs.reason))
         return rs
     return logger  # middlewares 是 callable
 
 
+async def request_factory(app, handler):
+    async def request_handler(request):
+        logging.debug("[request_factory]:request_handler start.")
+        logging.debug("[request_factory]:handler cookie and get user.")
+        cookie_str = request.cookies.get(_COOKIE_NAME)
+        request.user = None
+        if cookie_str:
+            user = await cookie2user(cookie_str)
+            if user:
+                logging.debug('get current user: {}'.format(user.email))
+                request.user = user
+        if request.path.startswith('/manage') and (request.user is None or not request.user.admin):
+            return web.HTTPFound('/signin')
+        logging.debug("[request_factory]:get response by: {}.".format(handler))
+        rs = await handler(request)  # handler 是 response_factory.response_handler
+        logging.debug("[request_factory]:get response ok.")
+        return rs
+    return request_handler
+
+
 async def response_factory(app, handler):
     async def response_handler(request):
         logging.debug("[response_factory]:wait response body by {}".format(handler))
-        rs = await handler(request)  # handler 是 request_factory.request_handler
+        rs = await handler(request)  # handler 是 hello: RequestHandler
         logging.debug("[response_factory]:make response body (type:{} | len:{})".format(type(rs), len(rs)))
         if isinstance(rs, web.StreamResponse):
             return rs
@@ -181,44 +201,6 @@ async def response_factory(app, handler):
         resp.content_type = "text/plain;charset=utf-8"
         return resp
     return response_handler
-
-
-async def request_factory(app, handler):
-    async def request_handler(request):
-        logging.debug("[request_factory]:request_handler start.")
-        if request.method == 'GET':
-            pass
-        if request.method == 'POST':
-            pass
-        logging.debug("[request_factory]:get response by: {}.".format(handler))
-        rs = await handler(request)  # handler 是 hello: RequestHandler
-        logging.debug("[request_factory]:get response ok.")
-        return rs
-    return request_handler
-
-
-def get(path):
-    def decorator(func):
-        # functools.wraps 可以将原函数对象的指定属性复制给包装函数对象,
-        # 默认有 __module__、__name__、__doc__
-        @functools.wraps(func)
-        def wrapper(*args, **kw):
-            return func(*args, **kw)
-        wrapper.method = 'GET'
-        wrapper.path = path
-        return wrapper
-    return decorator
-
-
-def post(path):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kw):
-            return func(*args, **kw)
-        wrapper.method = 'POST'
-        wrapper.path = path
-        return wrapper
-    return decorator
 
 
 def add_routes(app, module_name):

@@ -70,19 +70,19 @@
     - https://aiohttp.readthedocs.io/en/stable/web_advanced.html#middlewares
     - 在内部, 通过以相反的顺序返回`RequestHandler(request)`的结果`response`, 当有请求`request`时, 执行情况如下:
 ```
-    middlewares=[logger_factory, response_factory, request_factory]
+    middlewares=[logger_factory, request_factory, response_factory]
 
-    request_factory(app, hello) -> request_handler
-    response_factory(app, request_handler) ->  response_handler
-    logger_factory(app, response_handler) -> logger
+    response_factory(app, hello) ->  response_handler
+    request_factory(app, response_handler) -> request_handler
+    logger_factory(app, request_handler) -> logger
 
-    logger(request) -> ... -> await response_handler(request) -> ...
-        response_handler(request) -> ... -> await request_handler(request) -> ...
-            request_handler(request) -> ... -> await hello(request) -> ...
+    logger(request) -> ... -> await request_handler(request) -> ...
+        request_handler(request) -> ... -> await response_handler(request) -> ...
+            response_handler(request) -> ... -> await hello(request) -> ...
 ```
 * `request_factory`: 在调用URL函数前可以拦截请求等
 * `response_factory`: 构造`web.Response`
-* `RequestHandler`: 分析URL函数需要接收的参数, 包装URL函数传递给路由, 当有请求时, 从`request`中获取必要的参数, 调用URL函数
+* `RequestHandler`: 分析URL函数需要接收的参数, 包装URL函数传递给路由, 当有请求时, 从`request`中获取必要的参数, 调用URL函数. 与request_factory分开是为了在初始化时检查参数错误.
 
 ## `inspect`模块, 函数参数分析
 * https://docs.python.org/zh-cn/3/library/inspect.html

@@ -16,7 +16,7 @@ from web_frame import (add_routes, add_static, init_jinja2, datetime_filter,
 
 async def init(loop):
     await orm.create_pool(user=db['user'], password=db['password'], db=db['db'], loop=loop)
-    app = web.Application(loop=loop, middlewares=[logger_factory, response_factory, request_factory])
+    app = web.Application(loop=loop, middlewares=[logger_factory, request_factory, response_factory])
     add_routes(app, 'handlers')
     add_static(app)
     init_jinja2(app, filters=dict(datetime_filter=datetime_filter))
