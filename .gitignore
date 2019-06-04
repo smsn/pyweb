@@ -1,0 +1,6 @@
+env
+www/env
+www/__pycache__
+www/static/img/
+www/static/
+www/templates/test.html
