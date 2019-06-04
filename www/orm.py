@@ -21,7 +21,7 @@ async def create_pool(loop, **kwargs):
 
 async def select(sql, args, size=None):
     # 查询
-    logging.info('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
+    logging.debug('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
     # 使用async with 自动关闭
     #    await cursor.close()
     #    conn.close()
@@ -33,13 +33,13 @@ async def select(sql, args, size=None):
                 results = await cur.fetchmany(size)
             else:
                 results = await cur.fetchall()
-        logging.info('Rows returned: {}'.format(len(results)))
+        logging.debug('Rows returned: {}'.format(len(results)))
         return results  # 没有 conn.close() 连接复用
 
 
 async def execute(sql, args, autocommit=True):
     # Insert, Update, Delete
-    logging.info('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
+    logging.debug('SQL: {}  |  Args: {}'.format(sql.replace('?', '%s'), args or ()))
     async with __pool.acquire() as conn:
         if not autocommit:
             await conn.begin()  # 开始事务  A coroutine to begin transaction.

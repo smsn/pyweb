@@ -128,6 +128,8 @@ class RequestHandler(object):
             rs = await self.func(**kw)
             return rs
         except APIError as e:
+            logging.warning('[APIError]: error_type:{}, error_kw:{}, message:{}'.format(
+                e.error_type, e.error_kw, e.message))
             return dict(error_type=e.error_type, error_kw=e.error_kw, message=e.message)
 
     def __call__(self, request):
@@ -136,6 +138,7 @@ class RequestHandler(object):
 
 async def logger_factory(app, handler):
     async def logger(request):
+        logging.info("{}".format('\n' * 10))
         logging.info("({}, {}) request start handler by: {}.".format(
             request.method, request.path, handler))
         rs = await handler(request)  # handler 是 request_factory.request_handler
