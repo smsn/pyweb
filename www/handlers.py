@@ -132,11 +132,11 @@ async def api_get_users(*, page='1'):
     user_total = await User.find_count('id')
     _p = Page(user_total, page_index)
     if user_total == 0:
-        return dict(page=_p, users=())
+        return dict(msg='no data', page=_p, users=())
     users = await User.find_all(order_by='created_at desc', limit=(_p.start_index, _p.limit_num))
     for user in users:
         user.password = '******'
-    return dict(page=_p, users=users)
+    return dict(msg='success', page=_p, users=users)
 
 
 @post('/api/signin')
@@ -155,6 +155,7 @@ async def api_signin(*, email, password):
     resp = web.Response()
     resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
     user.password = '******'
+    user.msg = 'signin success'
     resp.content_type = 'application/json'
     resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return resp
@@ -166,7 +167,8 @@ async def api_register_user(*, email, name, password):
         raise APIValueError('name')
     if not email or not _RE_EMAIL.match(email):
         raise APIValueError('email')
-    if not password or not _RE_SHA1.match(password):
+    # if not password or not _RE_SHA1.match(password):
+    if not password:
         raise APIValueError('password')
     users = await User.find_count(where='email=?', args=[email])
     if users:
@@ -180,6 +182,7 @@ async def api_register_user(*, email, name, password):
     resp = web.Response()
     resp.set_cookie(_COOKIE_NAME, user2cookie(user, 600), max_age=600, httponly=True)
     user.password = '******'
+    user.msg = 'register success'
     resp.content_type = 'application/json'
     resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return resp
