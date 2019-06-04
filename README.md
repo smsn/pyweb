@@ -82,7 +82,7 @@
 ```
 * `request_factory`: 在调用URL函数前可以拦截请求等
 * `response_factory`: 构造`web.Response`
-* `RequestHandler`: 分析URL函数需要接收的参数, 包装URL函数传递给路由, 当有请求时, 从`request`中获取必要的参数, 调用URL函数. 与request_factory分开是为了在初始化时检查参数错误.
+* `RequestHandler`: 分析URL函数需要接收的参数, 包装URL函数传递给路由, 当有请求时, 从`request`中获取必要的参数, 调用URL函数. 与`request_factory`分开是为了在初始化时检查参数错误.
 
 ## `inspect`模块, 函数参数分析
 * https://docs.python.org/zh-cn/3/library/inspect.html
@@ -90,3 +90,6 @@
 ## Chromium
 * 禁止缓存, 修改css等可立即生效
 * DevTools --> Network --> Disable cache
+
+## `REST(Representational State Transfer) API`
+* 简单来说,就是看到请求 `GET /api/blog/id/123` 就知道要干什么
