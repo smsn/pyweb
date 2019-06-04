@@ -2,6 +2,56 @@
 
 {% block title %}注册{% endblock %}
 
+{% block beforehead %}
+<script>
+  function validateEmail(email) {
+    var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
+    return re.test(email.toLowerCase());
+  }
+  $(function () {
+    var vm = new Vue({
+      el: '#log-form',
+      data: {
+        name: '',
+        email: '',
+        password: '',
+        password2: ''
+      },
+      methods: {
+        submit: function (event) {
+          event.preventDefault();
+          var $form = $('#log-form');
+          if (!this.name.trim()) {
+            return $form.showFormError('请输入名字');
+          }
+          if (!validateEmail(this.email.trim().toLowerCase())) {
+            return $form.showFormError('请输入正确的Email地址');
+          }
+          if (this.password.length < 6) {
+            return $form.showFormError('口令长度至少为6个字符');
+          }
+          if (this.password !== this.password2) {
+            return $form.showFormError('两次输入的口令不一致');
+          }
+          var email = this.email.trim().toLowerCase();
+          $form.postJSON('/api/register', {
+            name: this.name.trim(),
+            email: email,
+            password: CryptoJS.SHA1(email + ':' + this.password).toString()
+          }, function (err, r) {
+            if (err) {
+              return $form.showFormError(err);
+            }
+            return location.assign('/');
+          });
+        }
+      }
+    });
+    $('#log-form').show();
+  });
+</script>
+{% endblock %}
+
 {% block nav %}
 <header>
   <div class="log-header">
@@ -22,28 +72,29 @@
       <h1 class="log-title am-animation-slide-top">注 册</h1>
       <br>
 
-      <form action="/api/register" method="post" class="am-form" id="log-form">
+      <!-- <form action="/api/register" method="post" class="am-form" id="log-form"> -->
+      <form id="log-form" @submit="submit" class="am-form">
 
         <div class="am-input-group am-radius am-animation-slide-left">
-          <input name="name" type="name" id="doc-vld-name-2-1" class="am-radius" data-validation-message="请输入正确用户名" placeholder="用户名" required>
+          <input v-model="name" type="name" id="doc-vld-name-2-1" class="am-radius" data-validation-message="请输入正确用户名" placeholder="用户名" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-user am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>
 
         <div class="am-input-group am-radius am-animation-slide-left">
-          <input name="email" type="email" id="doc-vld-email-2-1" class="am-radius" data-validation-message="请输入正确邮箱地址" placeholder="邮箱" required>
+          <input v-model="email" type="email" id="doc-vld-email-2-1" class="am-radius" data-validation-message="请输入正确邮箱地址" placeholder="邮箱" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-user am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>
 
         <div class="am-input-group am-animation-slide-left log-animation-delay">
-          <input name="password" type="password" id="log-password" class="am-form-field am-radius log-input" placeholder="密码" minlength="11" required>
+          <input v-model="password" type="password" id="log-password" class="am-form-field am-radius log-input" placeholder="密码" minlength="11" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-lock am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>
 
         <div class="am-input-group am-animation-slide-left log-animation-delay-a">
-          <input type="password" data-equal-to="#log-password" class="am-form-field am-radius log-input" placeholder="确认密码" data-validation-message="请确认密码一致" required>
+          <input v-model="password2" type="password" data-equal-to="#log-password" class="am-form-field am-radius log-input" placeholder="确认密码" data-validation-message="请确认密码一致" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-lock am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>
