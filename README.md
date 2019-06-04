@@ -91,5 +91,5 @@
 * 禁止缓存, 修改css等可立即生效
 * DevTools --> Network --> Disable cache
 
-## `REST(Representational State Transfer) API`
+## REST(Representational State Transfer) API
 * 简单来说,就是看到请求 `GET /api/blog/id/123` 就知道要干什么
