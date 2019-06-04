@@ -167,7 +167,11 @@ async def request_factory(app, handler):
 
 async def response_factory(app, handler):
     async def response_handler(request):
-        logging.debug("[response_factory]:wait response body by {}".format(handler))
+        try:
+            func_name = handler.func_name
+        except Exception:
+            func_name = ''
+        logging.debug("[response_factory]:wait response body by {}: {}".format(func_name, handler))
         rs = await handler(request)  # handler 是 hello: RequestHandler
         logging.debug("[response_factory]:make response body (type:{} | len:{})".format(type(rs), len(rs)))
         if isinstance(rs, web.StreamResponse):
