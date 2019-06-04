@@ -39,6 +39,13 @@ def post(path):
     return decorator
 
 
+def check_user(request, check_admin=False):
+    if request.user is None:
+        raise APIPermissionError('Must log in.')
+    if check_admin and not request.user.admin:
+        raise APIPermissionError('Must be an administrator.')
+
+
 def get_page_index(page):
     try:
         p = int(page)
@@ -189,18 +196,100 @@ async def api_register_user(*, email, name, password):
     return resp
 
 
-@get(r'/test{tail:.*}')
-async def test(*, request, **kw):
-    # for i in range(200):
-    #     user = User(name='user%d' % i, email='user%d@example.com' % i, password='user%dpass' % i, avatar='user%dimg' % i)
-    #     await user.save()  # user6.save() 仅仅是创建了一个协程, 要用await
-    # users_n = await User.find_count("name")
-    # print(users_n)
-    # users_1n = await User.find_count(where="name like ?", args=['user10%'])
-    # print(users_1n)
-    # users = await User.find_all(order_by="name desc", limit=(1, 10))
-    # print(len(users))
-    # user = await User.find_by_pri_key(users[1].id)
-    # print(user)
-    user = request.user
-    return {"__template__": "test.html", "user": user}
+@get('/api/blogs/{blog_id}')
+async def api_get_blog(*, blog_id):
+    blog = await Blog.find_by_pri_key(blog_id)
+    return blog
+
+
+@post('/api/blogs/{blog_id}')
+async def api_update_blog(blog_id, request, *, title, summary, content):
+    check_user(request)
+    if not title or not title.strip():
+        raise APIValueError("title", "title cannot be empty")
+    if not summary or not summary.strip():
+        raise APIValueError("summary", "summary cannot be empty")
+    if not content or not content.strip():
+        raise APIValueError("content", "content cannot be empty")
+    blog = await Blog.find_by_pri_key(blog_id)
+    blog.title = title
+    blog.summary = summary
+    blog.content = content
+    await blog.update()
+    return blog
+
+
+@get('/api/blogs')
+async def api_get_blogs(*, page='1'):
+    page_index = get_page_index(page)
+    blog_total = await Blog.find_count('id')
+    _p = Page(blog_total, page_index)
+    if blog_total == 0:
+        return dict(msg='no blog', page=_p, blogs=())
+    blogs = await Blog.find_all(order_by='created_at desc', limit=(_p.start_index, _p.limit_num))
+    return dict(msg='success', page=_p, blogs=blogs)
+
+
+@post('/api/blogs')
+async def api_create_blog(request, *, title, summary, content):
+    check_user(request)
+    if not title or not title.strip():
+        raise APIValueError("title", "title cannot be empty")
+    if not summary or not summary.strip():
+        raise APIValueError("summary", "summary cannot be empty")
+    if not content or not content.strip():
+        raise APIValueError("content", "content cannot be empty")
+    blog = Blog(
+        user_id=request.user.id,
+        user_name=request.user.name,
+        user_avatar=request.user.avatar,
+        title=title.strip(),
+        summary=summary.strip(),
+        content=content.strip())
+    await blog.save()
+    return blog
+
+
+@post('/api/blogs/{blog_id}/delete')
+async def api_delete_blog(request, *, blog_id):
+    check_user(request)
+    blog = await Blog.find_by_pri_key(blog_id)
+    await blog.remove()
+    return dict(msg='delete success', id=blog_id)
+
+
+@get('/api/blogs/{blog_id}/comments')
+async def api_get_comments(blog_id, *, page='1'):
+    page_index = get_page_index(page)
+    comments_total = await Comment.find_count('id', where='blog_id=?', args=[blog_id])
+    _p = Page(comments_total, page_index)
+    if comments_total == 0:
+        return dict(msg='no comments', page=_p, comments=())
+    comments = await Comment.find_all(where='blog_id=?', order_by='created_at desc', limit=(_p.start_index, _p.limit_num), args=[blog_id])
+    return dict(msg='success', page=_p, comments=comments)
+
+
+@post('/api/blogs/{blog_id}/comments')
+async def api_create_comment(blog_id, request, *, content):
+    check_user(request)
+    if not content or not content.strip():
+        raise APIValueError("content", "content cannot be empty")
+    blog = await Blog.find_by_pri_key(blog_id)
+    if blog is None:
+        raise APIResourceNotFoundError("Blog", "No such a blog.")
+    comment = Comment(
+        blog_id=blog.id,
+        user_id=request.user.id,
+        user_name=request.user.name,
+        user_avatar=request.user.avatar,
+        content=content.strip())
+    await comment.save()
+    return comment
+
+
+@post('/api/comments/{comment_id}/delete')
+async def api_delete_comment(request, *, comment_id):
+    check_user(request, True)
+    comment = await Comment.find_by_pri_key(comment_id)
+    await comment.remove()
+    return dict(msg='delete success', id=comment_id)
