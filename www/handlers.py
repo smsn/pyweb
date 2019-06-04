@@ -184,7 +184,7 @@ async def api_register_user(*, email, name, password):
     user_id = next_id()
     # hexdigest()函数将hash对象转换成16进制表示的字符串
     sha1_password = hashlib.sha1('{}:{}'.format(user_id, password).encode('utf-8')).hexdigest()
-    avatar = "http://www.gravatar.com/avatar/{}?d=mm&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
+    avatar = "http://www.gravatar.com/avatar/{}?d=retro&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
     user = User(id=user_id, name=name.strip(), email=email, password=sha1_password, avatar=avatar)
     await user.save()
     resp = web.Response()
