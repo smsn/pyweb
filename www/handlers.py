@@ -203,7 +203,7 @@ async def api_get_blog(*, blog_id):
 
 
 @post('/api/blogs/{blog_id}')
-async def api_update_blog(blog_id, request, *, title, summary, content):
+async def api_update_blog(*, title, summary, content, blog_id, request,):
     check_user(request)
     if not title or not title.strip():
         raise APIValueError("title", "title cannot be empty")
@@ -231,7 +231,7 @@ async def api_get_blogs(*, page='1'):
 
 
 @post('/api/blogs')
-async def api_create_blog(request, *, title, summary, content):
+async def api_create_blog(*, title, summary, content, request):
     check_user(request)
     if not title or not title.strip():
         raise APIValueError("title", "title cannot be empty")
@@ -251,7 +251,7 @@ async def api_create_blog(request, *, title, summary, content):
 
 
 @post('/api/blogs/{blog_id}/delete')
-async def api_delete_blog(request, *, blog_id):
+async def api_delete_blog(*, blog_id, request):
     check_user(request)
     blog = await Blog.find_by_pri_key(blog_id)
     await blog.remove()
@@ -259,7 +259,7 @@ async def api_delete_blog(request, *, blog_id):
 
 
 @get('/api/blogs/{blog_id}/comments')
-async def api_get_comments(blog_id, *, page='1'):
+async def api_get_comments(*, page='1', blog_id):
     page_index = get_page_index(page)
     comments_total = await Comment.find_count('id', where='blog_id=?', args=[blog_id])
     _p = Page(comments_total, page_index)
@@ -270,7 +270,7 @@ async def api_get_comments(blog_id, *, page='1'):
 
 
 @post('/api/blogs/{blog_id}/comments')
-async def api_create_comment(blog_id, request, *, content):
+async def api_create_comment(*, content, blog_id, request):
     check_user(request)
     if not content or not content.strip():
         raise APIValueError("content", "content cannot be empty")
@@ -288,8 +288,16 @@ async def api_create_comment(blog_id, request, *, content):
 
 
 @post('/api/comments/{comment_id}/delete')
-async def api_delete_comment(request, *, comment_id):
+async def api_delete_comment(*, comment_id, request):
     check_user(request, True)
     comment = await Comment.find_by_pri_key(comment_id)
     await comment.remove()
     return dict(msg='delete success', id=comment_id)
+
+
+@get('/test')
+async def test(request):
+    # blogs = await Blog.find_all()
+    blogs = None
+    user = request.user
+    return {"__template__": "test.html", "blogs": blogs, "user": user}
