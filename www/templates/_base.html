@@ -12,6 +12,12 @@
   <script src="/static/js/jquery-3.4.1.min.js"></script>
   <script src="/static/js/amazeui.min.js"></script>
   <script src="/static/js/app.js"></script>
+  <style>
+    .nav-right {
+      float: right;
+      margin-top: 0;
+    }
+  </style>
   {% block beforehead %}{% endblock %}
 </head>
 <!-- style="text-align:center;" -->
@@ -23,7 +29,7 @@
     <div class="am-collapse am-topbar-collapse" id="blog-collapse">
       <ul class="am-nav am-nav-pills am-topbar-nav">
         <li class="am-active"><a href="/">首页</a></li>
-        <li><a href="/manage/blogs/create">创建文章</a></li>
+        <li><a href="/create/blog">创建文章</a></li>
         <li><a href="lw-img.html">图片库</a></li>
         <li><a href="timeline.html">时间线</a></li>
       </ul>
@@ -39,8 +45,8 @@
           </ul>
         </li>
         {% if user.admin %}
-        <li><a href="/manage/blogs">管理Blog</a></li>
-        <li><a href="/manage/users">管理用户</a></li>
+        <li><a href="/admin/blogs">管理Blog</a></li>
+        <li><a href="/admin/users">管理用户</a></li>
         {% endif %}
         {% else %}
         <li><a href="/signin">登录</a></li>

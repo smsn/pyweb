@@ -13,8 +13,8 @@
       </div>
       <div class="am-u-lg-6 am-u-md-12 am-u-sm-12 blog-entry-text">
         <h1><a href="/blog/{{ blog.id }}">{{ blog.title }}</a></h1>
-        <span><a href="" class="blog-color">article &nbsp;|&nbsp; </a></span>
-        <span> @{{ blog.user_name }} &nbsp;|&nbsp; </span>
+        <span><a href="" class="blog-color">article</a></span> &nbsp;|&nbsp;
+        <span><a href="/user/{{ blog.user_id }}">@{{ blog.user_name }}</a></span> &nbsp;|&nbsp;
         <span>发表于 {{ blog.created_at|datetime_filter }}</span>
         <p>{{ blog.summary }}</p>
         <p><a href="/blog/{{ blog.id }}" class="blog-continue">继续阅读</a></p>

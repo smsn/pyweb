@@ -114,7 +114,7 @@ async def index(request):
     # 首页
     blogs = await Blog.find_all()
     user = request.user
-    return {"__template__": "blogs.html", "blogs": blogs, "user": user}
+    return {"__template__": "index.html", "blogs": blogs, "user": user}
 
 
 @get('/register')
@@ -191,6 +191,15 @@ async def signout(request):
     return resp
 
 
+@get('/admin/users')
+async def admin_users(*, page='1', request):
+    # 管理blog 页面
+    check_user(request, True)
+    user = request.user
+    users = await api_get_users(page=page, request=request)
+    return {"__template__": "admin_users.html", "users": users, "user": user}
+
+
 @get('/api/users')
 async def api_get_users(*, page='1', request):
     # 获取用户列表API
@@ -212,7 +221,7 @@ async def get_blog(*, blog_id, request):
     blog = await Blog.find_by_pri_key(blog_id)
     # blog.content = blog.content.replace('\r\n', '</p><p>')
     user = request.user
-    return {"__template__": "article.html", "blog": blog, "user": user}
+    return {"__template__": "blog.html", "blog": blog, "user": user}
 
 
 @get('/api/blog/{blog_id}')
@@ -284,13 +293,14 @@ async def admin_blogs(*, page='1', request):
     # 管理blog 页面
     check_user(request, True)
     user = request.user
-    blogs = api_get_blogs(page=page)
+    blogs = await api_get_blogs(page=page, request=request)
     return {"__template__": "admin_blogs.html", "blogs": blogs, "user": user}
 
 
 @get('/api/blogs')
-async def api_get_blogs(*, page='1'):
+async def api_get_blogs(*, page='1', request):
     # 获取blog列表 API
+    check_user(request, True)
     page_index = get_page_index(page)
     blog_total = await Blog.find_count('id')
     _p = Page(blog_total, page_index)

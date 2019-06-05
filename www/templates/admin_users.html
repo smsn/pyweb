@@ -1,0 +1,156 @@
+{% extends '_admin.html' %}
+
+{% block title %}Admin Users{% endblock %}
+
+
+{% block beforehead %}
+<style>
+    .api-from {
+      float: left;
+    }
+    .api-from .am-btn-xs {
+      font-size: 1.4rem;
+    }
+    .table-main {
+      font-size: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+  <!-- content start -->
+  <div class="admin-content">
+    <div class="admin-content-body">
+      <div class="am-cf am-padding am-padding-bottom-0">
+        <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">后台管理</strong> / <small>Users</small></div>
+      </div>
+
+      <hr>
+
+      <div class="am-g">
+        <div class="am-u-sm-12 am-u-md-6">
+          <div class="am-btn-toolbar">
+            <div class="am-btn-group am-btn-group-xs">
+              <form class="api-from">
+                <button type="button" class="am-btn am-btn-default"><span class="am-icon-plus"></span> 新增</button>
+              </form>
+              <form class="api-from">
+                <button type="button" class="am-btn am-btn-default"><span class="am-icon-save"></span> 保存</button>
+              </form>
+              <form class="api-from">
+                <button type="button" class="am-btn am-btn-default"><span class="am-icon-archive"></span> 审核</button>
+              </form>
+              <form class="api-from">
+                <button type="button" class="am-btn am-btn-default"><span class="am-icon-trash-o"></span> 删除</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="am-u-sm-12 am-u-md-3">
+          <div class="am-input-group am-input-group-sm">
+            <input type="text" class="am-form-field">
+          <span class="am-input-group-btn">
+            <button class="am-btn am-btn-default" type="button">搜索</button>
+          </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="am-g">
+        <div class="am-u-sm-12">
+          <div class="am-form">
+            <table class="am-table am-table-striped am-table-hover table-main">
+
+              <thead>
+              <tr>
+                <th class="table-check"><input type="checkbox" /></th><th class="table-id">ID</th><th class="table-title">Name</th><th class="table-type">Admin</th><th class="table-author am-hide-sm-only">Email</th><th class="table-date am-hide-sm-only">修改日期</th><th class="table-set">操作</th>
+              </tr>
+              </thead>
+
+
+              <tbody>
+
+              {% for user in users['users'] %}
+              <tr>
+                <td><input type="checkbox" /></td>
+                <td>{{ loop.index }}</td>
+                <td><a href="/user/{{ user.id }}">{{ user.name }}</a></td>
+                <td>{{ user.admin }}</td>
+                <td class="am-hide-sm-only">{{ user.email }}</td>
+                <td class="am-hide-sm-only">{{  user.created_at|datetime_filter }}</td>
+                <td>
+                  <div class="am-btn-toolbar">
+                    <div class="am-btn-group am-btn-group-xs">
+                      <form class="api-from">
+                        <button class="am-btn am-btn-default am-btn-xs am-text-secondary"><span class="am-icon-pencil-square-o"></span> 编辑</button>
+                      </form>
+                      <form class="api-from">
+                        <button class="am-btn am-btn-default am-btn-xs am-hide-sm-only"><span class="am-icon-copy"></span> 复制</button>
+                      </form>
+                      <form class="api-from">
+                        <button class="am-btn am-btn-default am-btn-xs am-text-danger am-hide-sm-only"><span class="am-icon-trash-o"></span> 删除</button>
+                      </form>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+
+              </tbody>
+
+            </table>
+
+
+            <div class="am-cf">
+              共 {{ users['page']['total'] }} 条记录
+              <div class="am-fr">
+                <ul class="am-pagination">
+                  {% set page_index = users['page']['page_index'] %}
+                  {% set page_count = users['page']['page_count'] %}
+
+                  {% if users['page']['has_previous'] %}
+                  <li><a href="?page={{ page_index-1 }}">«</a></li>
+                  <li><a href="?page={{ page_index-1 }}">{{ page_index-1 }}</a></li>
+                  {% else %}
+                  <li class="am-disabled"><a href="#">«</a></li>
+                  {% endif %}
+
+                  {% if page_count-page_index>5 %}
+                    {% set page_count = page_index+5 %}
+                  {% endif %}
+
+                  <li class="am-active"><a href="?page={{ page_index }}">{{ page_index }}</a></li>
+
+                  {% for _page in range(page_index+1,page_count+1) %}
+                  <li><a href="?page={{ _page }}">{{ _page }}</a></li>
+                  {% endfor %}
+
+
+                  {% if users['page']['has_next'] %}
+                  <li><a href="?page={{ page_index+1 }}">»</a></li>
+                  {% else %}
+                  <li class="am-disabled"><a href="#">»</a></li>
+                  {% endif %}
+
+                </ul>
+              </div>
+            </div>
+
+
+            <hr />
+            <p>注：{{ users['msg'] }}</p>
+            <p>注：{{ users['page'] }}</p>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+  </div>
+  <!-- content end -->
+{% endblock %}
