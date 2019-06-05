@@ -159,7 +159,8 @@ async def request_factory(app, handler):
             if user:
                 logging.debug('get current user: {}'.format(user.email))
                 request.user = user
-        if request.path.startswith('/manage') and (request.user is None or not request.user.admin):
+        # if request.path.startswith('/manage') and (request.user is None or not request.user.admin):
+        if request.path.startswith('/manage') and (request.user is None):
             return web.HTTPFound('/signin')
         logging.debug("[request_factory]:get response by: {}.".format(handler))
         rs = await handler(request)  # handler 是 response_factory.response_handler
