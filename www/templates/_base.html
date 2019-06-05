@@ -25,8 +25,7 @@
         <li class="am-active"><a href="/">首页</a></li>
         <li><a href="/manage/blogs/create">创建文章</a></li>
         <li><a href="lw-img.html">图片库</a></li>
-        <li><a href="lw-article-fullwidth.html">全宽页面</a></li>
-        <li><a href="lw-timeline.html">存档</a></li>
+        <li><a href="timeline.html">时间线</a></li>
       </ul>
       <ul class="am-nav am-nav-pills am-topbar-nav nav-right">
         {% if user %}
@@ -39,6 +38,10 @@
             <li><a href="/signout">退出</a></li>
           </ul>
         </li>
+        {% if user.admin %}
+        <li><a href="/manage/blogs">管理Blog</a></li>
+        <li><a href="/manage/users">管理用户</a></li>
+        {% endif %}
         {% else %}
         <li><a href="/signin">登录</a></li>
         <li><a href="/register">注册</a></li>

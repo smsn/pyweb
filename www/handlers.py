@@ -210,26 +210,27 @@ async def api_get_users(*, page='1', request):
 async def get_blog(*, blog_id, request):
     # 获取blog页面
     blog = await Blog.find_by_pri_key(blog_id)
+    # blog.content = blog.content.replace('\r\n', '</p><p>')
     user = request.user
     return {"__template__": "article.html", "blog": blog, "user": user}
 
 
-@get('/api/blogs/{blog_id}')
+@get('/api/blog/{blog_id}')
 async def api_get_blog(*, blog_id):
     # 获取blog API
     blog = await Blog.find_by_pri_key(blog_id)
     return blog
 
 
-@get('/manage/blogs/create')
+@get('/create/blog')
 async def create_blog(request):
     # 创建blog页面
     check_user(request)
     user = request.user
-    return {"__template__": "manage_blog_create.html", "user": user}
+    return {"__template__": "create_blog.html", "user": user}
 
 
-@post('/api/blogs')
+@post('/api/create/blog')
 async def api_create_blog(*, title, summary, content, request):
     # 创建blog API
     check_user(request)
@@ -251,7 +252,7 @@ async def api_create_blog(*, title, summary, content, request):
     return resp
 
 
-@post('/api/blogs/{blog_id}')
+@post('/api/blog/{blog_id}/update')
 async def api_update_blog(*, title, summary, content, blog_id, request):
     # 更新blog API
     check_user(request)
@@ -269,13 +270,22 @@ async def api_update_blog(*, title, summary, content, blog_id, request):
     return blog
 
 
-@post('/api/blogs/{blog_id}/delete')
+@post('/api/blog/{blog_id}/delete')
 async def api_delete_blog(*, blog_id, request):
     # 删除blog API
     check_user(request, True)
     blog = await Blog.find_by_pri_key(blog_id)
     await blog.remove()
     return dict(msg='delete success', id=blog_id)
+
+
+@get('/admin/blogs')
+async def admin_blogs(*, page='1', request):
+    # 管理blog 页面
+    check_user(request, True)
+    user = request.user
+    blogs = api_get_blogs(page=page)
+    return {"__template__": "admin_blogs.html", "blogs": blogs, "user": user}
 
 
 @get('/api/blogs')
@@ -290,7 +300,7 @@ async def api_get_blogs(*, page='1'):
     return dict(msg='success', page=_p, blogs=blogs)
 
 
-@get('/api/blogs/{blog_id}/comments')
+@get('/api/blog/{blog_id}/comments')
 async def api_get_comments(*, page='1', blog_id):
     # 获取某blog评论 API
     page_index = get_page_index(page)
@@ -302,7 +312,7 @@ async def api_get_comments(*, page='1', blog_id):
     return dict(msg='success', page=_p, comments=comments)
 
 
-@post('/api/blogs/{blog_id}/comments')
+@post('/api/blog/{blog_id}/comments')
 async def api_create_comment(*, content, blog_id, request):
     # 创建某blog评论 API
     check_user(request)
@@ -321,9 +331,9 @@ async def api_create_comment(*, content, blog_id, request):
     return comment
 
 
-@post('/api/comments/{comment_id}/delete')
+@post('/api/comment/{comment_id}/delete')
 async def api_delete_comment(*, comment_id, request):
-    # 删除某blog评论 API
+    # 删除评论 API
     check_user(request, True)
     comment = await Comment.find_by_pri_key(comment_id)
     await comment.remove()
