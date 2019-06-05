@@ -117,7 +117,7 @@ body {
     font-size:4rem;
 }
 .log-content {
-    margin-top:15%;
+    margin-top:6%;
     text-align:center;
 }
 .log-button {
@@ -145,16 +145,17 @@ body {
     top:0;
     color:#ffffff;
 }
-/* .log-header {
-    display: block;
-    height: 50px;
-    width: 165px;
+.log-header {
+    top: 1%;
+    /* display: block; */
+    /* height: 50px; */
+    /* width: 165px; */
     margin-left:10%;
-    text-indent: -9999px;
-    background: url(http://s.amazeui.org/media/i/brand/amazeui-w.png) left center no-repeat;
-    background-size: 125px 24px;
+    /* text-indent: -9999px; */
+    /* background: url(http://s.amazeui.org/media/i/brand/amazeui-w.png) left center no-repeat; */
+    /* background-size: 125px 24px; */
 }
-.log-header:hover {
+/* .log-header:hover {
     height: 50px;
     width: 165px;
     margin-left:10%;
@@ -250,10 +251,28 @@ a {
     margin-left:1.5rem;
     background-color:#10D07A;
 }
+
+.am-dropdown .am-dropdown-content {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 400ms linear;
+    padding: 0;
+    margin: 0;
+    /* display: none; */
+}
+
+.am-dropdown:hover .am-dropdown-content {
+    visibility: visible;
+    opacity: 1;
+    /* display: block; */
+}
+
 .am-dropdown-content li a{
+    transition: color 300ms;
     background-color:transparent;
 }
 .am-dropdown-content li a:hover {
+    color: #10D07A;
     background-color:#10D07A;
 }
 .blog-text-center {
@@ -286,6 +305,11 @@ a {
     max-width:100%;
     height:auto;
 }
+
+.blog-entry-img img {
+    box-shadow: 0 38px 32px -23px black;
+}
+
 .blog-entry-article {
     margin:3rem 0;
     padding-bottom: 3rem;
@@ -486,3 +510,34 @@ h1 span{
 .timeline-span {
     border-left:2px solid #10D07A;
 }
+
+
+.nav-right {
+    float: right;
+    margin-top: 0;
+}
+
+
+.am-form input[type=name].am-radius {
+    border-radius: 2px;
+}
+
+.am-form input[type=name] {
+    display: block;
+    width: 100%;
+    padding: .5em;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    -webkit-appearance: none;
+    -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+}
+
