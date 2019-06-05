@@ -160,12 +160,13 @@ async def api_signin(*, email, password):
     sha1_password = hashlib.sha1('{}:{}'.format(user.id, password).encode('utf-8')).hexdigest()
     if user.password != sha1_password:
         raise APIValueError('password', 'Wrong password.')
-    resp = web.Response()
+    # resp = web.Response()
+    resp = web.HTTPFound('/')
     resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
-    user.password = '******'
-    user.msg = 'signin success'
-    resp.content_type = 'application/json'
-    resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    # user.password = '******'
+    # user.msg = 'signin success'
+    # resp.content_type = 'application/json'
+    # resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return resp
 
 
@@ -187,12 +188,13 @@ async def api_register_user(*, email, name, password):
     avatar = "http://www.gravatar.com/avatar/{}?d=retro&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
     user = User(id=user_id, name=name.strip(), email=email, password=sha1_password, avatar=avatar)
     await user.save()
-    resp = web.Response()
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 600), max_age=600, httponly=True)
-    user.password = '******'
-    user.msg = 'register success'
-    resp.content_type = 'application/json'
-    resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    # resp = web.Response()
+    resp = web.HTTPFound('/')
+    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    # user.password = '******'
+    # user.msg = 'register success'
+    # resp.content_type = 'application/json'
+    # resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return resp
 
 

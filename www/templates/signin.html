@@ -2,45 +2,14 @@
 
 {% block title %}登录{% endblock %}
 
-{% block beforehead %}
-<script>
-  $(function () {
-    var vmAuth = new Vue({
-      el: '#log-form',
-      data: {
-        email: '',
-        password: ''
-      },
-      methods: {
-        submit: function (event) {
-          event.preventDefault();
-          var
-            $form = $('#log-form'),
-            email = this.email.trim().toLowerCase(),
-            data = {
-              email: email,
-              password: this.password === '' ? '' : CryptoJS.SHA1(email + ':' + this.password).toString()
-            };
-          $form.postJSON('/api/signin', data, function (err, result) {
-            // 正常登录之后,将转到首页
-            if (!err) {
-              return location.assign('/');
-            }
-          });
-        }
-      }
-    });
-  });
-</script>
-{% endblock %}
 
-{% block nav %}
+{% block header %}
 <header>
   <div class="log-header">
     <a href="/"><button type="button" class="am-btn am-btn-default am-radius log-button">首 页</button></a>
   </div>
   <div class="log-re">
-      <a href="/register"><button type="button" class="am-btn am-btn-default am-radius log-button">注 册</button></a>
+    <a href="/register"><button type="button" class="am-btn am-btn-default am-radius log-button">注 册</button></a>
   </div>
 </header>
 {% endblock %}
@@ -54,17 +23,16 @@
       <h1 class="log-title am-animation-slide-top">登 录</h1>
       <br>
 
-      <!-- <form action="/api/signin" method="post" class="am-form" id="log-form"> -->
-      <form id="log-form" @submit="submit" class="am-form">
+      <form action="/api/signin" method="post" class="am-form" id="log-form">
 
         <div class="am-input-group am-radius am-animation-slide-left">
-          <input v-model="email" type="email" id="doc-vld-email-2-1" class="am-radius" data-validation-message="请输入正确邮箱地址" placeholder="邮箱" required>
+          <input name="email" type="email" id="doc-vld-email-2-1" class="am-radius" data-validation-message="请输入正确邮箱地址" placeholder="邮箱" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-user am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>
 
         <div class="am-input-group am-animation-slide-left log-animation-delay">
-          <input v-model="password" type="text" class="am-form-field am-radius log-input" placeholder="密码" minlength="11" required>
+          <input name="password" type="password" class="am-form-field am-radius log-input" placeholder="密码" minlength="11" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-lock am-icon-sm am-icon-fw"></i></span>
         </div>
         <br>

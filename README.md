@@ -93,3 +93,5 @@
 
 ## REST(Representational State Transfer) API
 * 简单来说,就是看到请求 `GET /api/blog/id/123` 就知道要干什么
+
+## 若依赖`jQuery`, 在导入`JS`文件之前引入`jQuery`

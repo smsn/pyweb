@@ -9,19 +9,14 @@
   <title>{% block title %} ? {% endblock %} - Python Blog</title>
   <link rel="stylesheet" href="../static/css/amazeui.min.css">
   <link rel="stylesheet" href="../static/css/app.css">
-  <link rel="stylesheet" href="../static/css/main.css">
-  <!-- <script src="../static/js/amazeui.min.js"></script> -->
-  <!-- <script src="../static/js/app.js"></script> -->
-  <!-- <script src="../static/js/jquery-1.11.3.js"></script> -->
-  <script src="../static/js/jquery.min.js"></script>
-  <script src="../static/js/sha1.min.js"></script>
-  <script src="../static/js/awesome.js"></script>
-  <script src="../static/js/vue.js"></script>
+  <script src="../static/js/jquery-3.4.1.min.js"></script>
+  <script src="../static/js/amazeui.min.js"></script>
+  <script src="../static/js/app.js"></script>
   {% block beforehead %}{% endblock %}
 </head>
 
 <body>
-  {% block nav %}
+  {% block header %}
   <hr>
   <nav class="am-g am-g-fixed blog-fixed blog-nav">
     <div class="am-collapse am-topbar-collapse" id="blog-collapse">
