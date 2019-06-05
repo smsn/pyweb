@@ -109,6 +109,14 @@ async def cookie2user(cookie_str):
         return None
 
 
+@get('/blog_template.html')
+async def blog_template(request):
+    # 首页
+    blog = await Blog.find_all(order_by='created_at desc', limit=(0, 1))
+    user = request.user
+    return {"__template__": "blog_template.html", "blog": blog[0], "user": user}
+
+
 @get('/')
 async def index(request):
     # 首页
