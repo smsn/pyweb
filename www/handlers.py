@@ -120,7 +120,7 @@ async def blog_template(request):
 @get('/')
 async def index(request):
     # 首页
-    blogs = await Blog.find_all()
+    blogs = await Blog.find_all(order_by='created_at desc', limit=(0, 10))
     user = request.user
     return {"__template__": "index.html", "blogs": blogs, "user": user}
 
