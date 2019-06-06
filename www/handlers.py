@@ -131,6 +131,16 @@ async def register():
     return {"__template__": "register.html"}
 
 
+@post('/register')
+async def register_user(*, email, name, password):
+    # 注册成功
+    user = await api_register_user(email=email, name=name, password=password)
+    user = user['user']
+    resp = web.HTTPFound('/')
+    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    return resp
+
+
 @post('/api/register')
 async def api_register_user(*, email, name, password):
     # 注册API
@@ -150,20 +160,24 @@ async def api_register_user(*, email, name, password):
     avatar = "http://www.gravatar.com/avatar/{}?d=retro&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
     user = User(id=user_id, name=name.strip(), email=email, password=sha1_password, avatar=avatar)
     await user.save()
-    # resp = web.Response()
-    resp = web.HTTPFound('/')
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
-    # user.password = '******'
-    # user.msg = 'register success'
-    # resp.content_type = 'application/json'
-    # resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
-    return resp
+    user.password = '******'
+    return dict(msg='register success', user=user)
 
 
 @get('/signin')
 async def signin():
     # 登录页面
     return {"__template__": "signin.html"}
+
+
+@post('/signin')
+async def signin_(*, email, name, password):
+    # 登录成功
+    user = await api_signin(email=email, password=password)
+    user = user['user']
+    resp = web.HTTPFound('/')
+    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    return resp
 
 
 @post('/api/signin')
@@ -180,14 +194,8 @@ async def api_signin(*, email, password):
     sha1_password = hashlib.sha1('{}:{}'.format(user.id, password).encode('utf-8')).hexdigest()
     if user.password != sha1_password:
         raise APIValueError('password', 'Wrong password.')
-    # resp = web.Response()
-    resp = web.HTTPFound('/')
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
-    # user.password = '******'
-    # user.msg = 'signin success'
-    # resp.content_type = 'application/json'
-    # resp.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
-    return resp
+    user.password = '******'
+    return dict(msg='signin success', user=user)
 
 
 @get('/signout')
@@ -223,79 +231,6 @@ async def api_get_users(*, page='1', request):
     return dict(msg='success', page=_p, users=users)
 
 
-@get('/blog/{blog_id}')
-async def get_blog(*, blog_id, request):
-    # 获取blog页面
-    blog = await Blog.find_by_pri_key(blog_id)
-    # blog.content = blog.content.replace('\r\n', '</p><p>')
-    user = request.user
-    return {"__template__": "blog.html", "blog": blog, "user": user}
-
-
-@get('/api/blog/{blog_id}')
-async def api_get_blog(*, blog_id):
-    # 获取blog API
-    blog = await Blog.find_by_pri_key(blog_id)
-    return blog
-
-
-@get('/create/blog')
-async def create_blog(request):
-    # 创建blog页面
-    check_user(request)
-    user = request.user
-    return {"__template__": "create_blog.html", "user": user}
-
-
-@post('/api/create/blog')
-async def api_create_blog(*, title, summary, content, request):
-    # 创建blog API
-    check_user(request)
-    if not title or not title.strip():
-        raise APIValueError("title", "title cannot be empty")
-    if not summary or not summary.strip():
-        raise APIValueError("summary", "summary cannot be empty")
-    if not content or not content.strip():
-        raise APIValueError("content", "content cannot be empty")
-    blog = Blog(
-        user_id=request.user.id,
-        user_name=request.user.name,
-        user_avatar=request.user.avatar,
-        title=title.strip(),
-        summary=summary.strip(),
-        content=content.strip())
-    await blog.save()
-    resp = web.HTTPFound('/blog/{}'.format(blog.id))
-    return resp
-
-
-@post('/api/blog/{blog_id}/update')
-async def api_update_blog(*, title, summary, content, blog_id, request):
-    # 更新blog API
-    check_user(request)
-    if not title or not title.strip():
-        raise APIValueError("title", "title cannot be empty")
-    if not summary or not summary.strip():
-        raise APIValueError("summary", "summary cannot be empty")
-    if not content or not content.strip():
-        raise APIValueError("content", "content cannot be empty")
-    blog = await Blog.find_by_pri_key(blog_id)
-    blog.title = title
-    blog.summary = summary
-    blog.content = content
-    await blog.update()
-    return blog
-
-
-@post('/api/blog/{blog_id}/delete')
-async def api_delete_blog(*, blog_id, request):
-    # 删除blog API
-    check_user(request, True)
-    blog = await Blog.find_by_pri_key(blog_id)
-    await blog.remove()
-    return dict(msg='delete success', id=blog_id)
-
-
 @get('/admin/blogs')
 async def admin_blogs(*, page='1', request):
     # 管理blog 页面
@@ -318,12 +253,95 @@ async def api_get_blogs(*, page='1', request):
     return dict(msg='success', page=_p, blogs=blogs)
 
 
+@get('/blog/{blog_id}')
+async def get_blog(*, blog_id, request):
+    # 获取blog页面
+    blog = await api_get_blog(blog_id=blog_id)
+    blog = blog['blog']
+    # blog.content = blog.content.replace('\r\n', '</p><p>')
+    user = request.user
+    return {"__template__": "blog.html", "blog": blog, "user": user}
+
+
+@get('/api/blog/{blog_id}')
+async def api_get_blog(*, blog_id):
+    # 获取blog API
+    blog = await Blog.find_by_pri_key(blog_id)
+    return dict(msg='success', blog=blog)
+
+
+@get('/create/blog')
+async def create_blog(request):
+    # 创建blog页面
+    check_user(request)
+    user = request.user
+    return {"__template__": "create_blog.html", "user": user}
+
+
+@post('/create/blog')
+async def create_blog_(*, title, summary, content, request):
+    # 创建blog成功
+    check_user(request)
+    blog = await api_create_blog(title=title, summary=summary, content=content, request=request)
+    blog = blog['blog']
+    resp = web.HTTPFound('/blog/{}'.format(blog.id))
+    return resp
+
+
+@post('/api/create/blog')
+async def api_create_blog(*, title, summary, content, request):
+    # 创建blog API
+    check_user(request)
+    if not title or not title.strip():
+        raise APIValueError("title", "title cannot be empty")
+    if not summary or not summary.strip():
+        raise APIValueError("summary", "summary cannot be empty")
+    if not content or not content.strip():
+        raise APIValueError("content", "content cannot be empty")
+    blog = Blog(
+        user_id=request.user.id,
+        user_name=request.user.name,
+        user_avatar=request.user.avatar,
+        title=title.strip(),
+        summary=summary.strip(),
+        content=content.strip())
+    await blog.save()
+    return dict(msg='create blog success', blog=blog)
+
+
+@post('/api/blog/{blog_id}/update')
+async def api_update_blog(*, title, summary, content, blog_id, request):
+    # 更新blog API
+    check_user(request)
+    if not title or not title.strip():
+        raise APIValueError("title", "title cannot be empty")
+    if not summary or not summary.strip():
+        raise APIValueError("summary", "summary cannot be empty")
+    if not content or not content.strip():
+        raise APIValueError("content", "content cannot be empty")
+    blog = await Blog.find_by_pri_key(blog_id)
+    blog.title = title
+    blog.summary = summary
+    blog.content = content
+    await blog.update()
+    return dict(msg='update blog success', blog=blog)
+
+
+@post('/api/blog/{blog_id}/delete')
+async def api_delete_blog(*, blog_id, request):
+    # 删除blog API
+    check_user(request, True)
+    blog = await Blog.find_by_pri_key(blog_id)
+    await blog.remove()
+    return dict(msg='delete blog success', blog=blog)
+
+
 @get('/api/blog/{blog_id}/comments')
 async def api_get_comments(*, page='1', blog_id):
     # 获取某blog评论 API
     page_index = get_page_index(page)
     comments_total = await Comment.find_count('id', where='blog_id=?', args=[blog_id])
-    _p = Page(comments_total, page_index)
+    _p = Page(comments_total, page_index, 100)
     if comments_total == 0:
         return dict(msg='no comments', page=_p, comments=())
     comments = await Comment.find_all(where='blog_id=?', order_by='created_at desc', limit=(_p.start_index, _p.limit_num), args=[blog_id])
@@ -346,7 +364,7 @@ async def api_create_comment(*, content, blog_id, request):
         user_avatar=request.user.avatar,
         content=content.strip())
     await comment.save()
-    return comment
+    return dict(msg='create comment success', comment=comment)
 
 
 @post('/api/comment/{comment_id}/delete')
@@ -355,7 +373,7 @@ async def api_delete_comment(*, comment_id, request):
     check_user(request, True)
     comment = await Comment.find_by_pri_key(comment_id)
     await comment.remove()
-    return dict(msg='delete success', id=comment_id)
+    return dict(msg='delete comment success', comment=comment)
 
 
 @get('/test')
