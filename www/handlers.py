@@ -99,10 +99,10 @@ async def cookie2user(cookie_str):
         user = await User.find_by_pri_key(user_id)
         if user is None:
             return None
+        user.password = '******'
         _s = "{}-{}-{}-{}".format(user_id, user.password, expiration_date, _COOKIE_KEY)
         if sha1 != hashlib.sha1(_s.encode('utf-8')).hexdigest():
             return None
-        user.password = '******'
         return user
     except Exception as e:
         logging.warning('cookie2user wrong: {}'.format(e))
@@ -171,7 +171,7 @@ async def signin():
 
 
 @post('/signin')
-async def signin_(*, email, name, password):
+async def signin_(*, email, password):
     # 登录成功
     user = await api_signin(email=email, password=password)
     user = user['user']
