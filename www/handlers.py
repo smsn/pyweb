@@ -99,10 +99,10 @@ async def cookie2user(cookie_str):
         user = await User.find_by_pri_key(user_id)
         if user is None:
             return None
-        user.password = '******'
         _s = "{}-{}-{}-{}".format(user_id, user.password, expiration_date, _COOKIE_KEY)
         if sha1 != hashlib.sha1(_s.encode('utf-8')).hexdigest():
             return None
+        user.password = '******'
         return user
     except Exception as e:
         logging.warning('cookie2user wrong: {}'.format(e))
@@ -137,7 +137,7 @@ async def register_user(*, email, name, password):
     user = await api_register_user(email=email, name=name, password=password)
     user = user['user']
     resp = web.HTTPFound('/')
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    resp.set_cookie(_COOKIE_NAME, user.cookie, max_age=86400, httponly=True)
     return resp
 
 
@@ -160,6 +160,7 @@ async def api_register_user(*, email, name, password):
     avatar = "http://www.gravatar.com/avatar/{}?d=retro&s=120".format(hashlib.md5(email.encode('utf-8')).hexdigest())
     user = User(id=user_id, name=name.strip(), email=email, password=sha1_password, avatar=avatar)
     await user.save()
+    user.cookie = user2cookie(user, 86400)
     user.password = '******'
     return dict(msg='register success', user=user)
 
@@ -176,7 +177,7 @@ async def signin_(*, email, password):
     user = await api_signin(email=email, password=password)
     user = user['user']
     resp = web.HTTPFound('/')
-    resp.set_cookie(_COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    resp.set_cookie(_COOKIE_NAME, user.cookie, max_age=86400, httponly=True)
     return resp
 
 
@@ -194,6 +195,7 @@ async def api_signin(*, email, password):
     sha1_password = hashlib.sha1('{}:{}'.format(user.id, password).encode('utf-8')).hexdigest()
     if user.password != sha1_password:
         raise APIValueError('password', 'Wrong password.')
+    user.cookie = user2cookie(user, 86400)
     user.password = '******'
     return dict(msg='signin success', user=user)
 
