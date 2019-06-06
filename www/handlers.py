@@ -111,7 +111,7 @@ async def cookie2user(cookie_str):
 
 @get('/blog_template.html')
 async def blog_template(request):
-    # 首页
+    # 模板
     blog = await Blog.find_all(order_by='created_at desc', limit=(0, 1))
     user = request.user
     return {"__template__": "blog_template.html", "blog": blog[0], "user": user}
@@ -209,7 +209,7 @@ async def signout(request):
 
 @get('/admin/users')
 async def admin_users(*, page='1', request):
-    # 管理blog 页面
+    # 管理users页面
     check_user(request, True)
     user = request.user
     users = await api_get_users(page=page, request=request)
@@ -218,7 +218,7 @@ async def admin_users(*, page='1', request):
 
 @get('/api/users')
 async def api_get_users(*, page='1', request):
-    # 获取用户列表API
+    # 获取用户列表 API
     check_user(request, True)
     page_index = get_page_index(page)
     user_total = await User.find_count('id')
@@ -233,7 +233,7 @@ async def api_get_users(*, page='1', request):
 
 @get('/admin/blogs')
 async def admin_blogs(*, page='1', request):
-    # 管理blog 页面
+    # 管理blogs页面
     check_user(request, True)
     user = request.user
     blogs = await api_get_blogs(page=page, request=request)
