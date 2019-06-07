@@ -1,4 +1,5 @@
 config_override = {
+    # 'debug': False,
     'database': {
         'host': '127.0.0.1'
     }

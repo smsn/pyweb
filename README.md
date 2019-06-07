@@ -1,6 +1,7 @@
 # learn python web
 
 ## 实现功能
+* [截图](screenshots/README.md)
 * `GET ('/')`  首页
 * `GET ('/register')`  注册页面
 * `POST('/api/register')`  注册API
