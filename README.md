@@ -65,7 +65,7 @@
 ## 函数注释(可选)
 * https://www.python.org/dev/peps/pep-3107/
 * 注释始终位于参数的默认值之前
-```
+```python
     >>> def foobar(a: 1+1, b: "it's b", c: str = 5) -> tuple:
     ...     return a, b, c
     >>> foobar.__annotations__
@@ -91,7 +91,7 @@
 * `middlewares`: 中间件是可以修改请求或响应中的协程
     - https://aiohttp.readthedocs.io/en/stable/web_advanced.html#middlewares
     - 在内部, 通过以相反的顺序返回`RequestHandler(request)`的结果`response`, 当有请求`request`时, 执行情况如下:
-```
+```python
     middlewares=[logger_factory, request_factory, response_factory]
 
     response_factory(app, hello) ->  response_handler

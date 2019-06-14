@@ -8,6 +8,7 @@ from aiohttp import web
 from models import next_id, User, Blog, Comment
 from api import APIError, APIValueError, APIResourceNotFoundError, APIPermissionError
 from config import configs
+from markdown2html import markdown2html
 
 _COOKIE_NAME = configs['session']['cookie_name']
 _COOKIE_KEY = configs['session']['secret_key']
@@ -113,8 +114,10 @@ async def cookie2user(cookie_str):
 async def blog_template(request):
     # 模板
     blog = await Blog.find_all(order_by='created_at desc', limit=(0, 1))
+    blog = blog[0]
+    blog.content = markdown2html(blog.content)
     user = request.user
-    return {"__template__": "blog_template.html", "blog": blog[0], "user": user}
+    return {"__template__": "blog_template.html", "blog": blog, "user": user}
 
 
 @get('/')
@@ -260,7 +263,7 @@ async def get_blog(*, blog_id, request):
     # 获取blog页面
     blog = await api_get_blog(blog_id=blog_id)
     blog = blog['blog']
-    # blog.content = blog.content.replace('\r\n', '</p><p>')
+    blog.content = markdown2html(blog.content)
     user = request.user
     return {"__template__": "blog.html", "blog": blog, "user": user}
 
