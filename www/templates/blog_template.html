@@ -2,6 +2,7 @@
 
 {% block title %}{{ blog.title }} - Blog{% endblock %}
 
+
 {% block beforehead %}
 <style>
     @media only screen and (min-width: 641px) {
@@ -58,31 +59,47 @@
         margin-top: 0;
       }
     }
+
+    @media only screen and (min-width: 641px) {
+        .am-u-md-pull-9 {
+            right: 70%;
+        }
+        .am-u-md-push-3 {
+            left: 30%;
+        }
+        /* .am-u-md-8 {
+            width: 75%;
+        } */
+    }
+
+    .my-button {
+      position: fixed;
+      top: 0;
+      right: 0;
+      border-radius: 0;
+    }
     .my-sidebar {
-      width: 20%;
-      float: left;
       padding-right: 0;
       border-right: 1px solid #eeeeee;
     }
-    .blog-content .am-u-sm-12 {
-      width: 80%;
-      float: right;
-    }
-    .am-article-meta {
-      font-size: 2rem;
+
+    .my-footer {
+      border-top: 1px solid #eeeeee;
+      padding: 10px 0;
+      margin-top: 10px;
+      text-align: center;
     }
 </style>
 {% endblock %}
 
 
-{% block content %}
-<hr>
-<!-- content srart -->
+{% block divwrap %}
 <div class="am-g am-g-fixed blog-fixed blog-content">
+{% endblock %}
 
 
-
-    <div class="am-u-md-8 am-u-sm-12">
+{% block content %}
+    <div class="am-u-md-8 am-u-sm-12 am-u-md-push-3">
       <article class="am-article blog-article-p">
         <div class="am-article-hd">
           <h1 class="am-article-title blog-text-center">{{ blog.title }}</h1>
@@ -93,7 +110,9 @@
           </p>
         </div>
         <div class="am-article-bd">
+          <hr>
           <p>{{ blog.summary|safe }}</p>
+          <hr>
           <p>{{ blog.content|safe }}</p>
           <hr>
         <img src="/static/img/f10.jpg" alt="" class="blog-entry-img blog-article-margin">
@@ -231,24 +250,41 @@
 
         <hr>
     </div>
+{% endblock %}
 
 
-    <div class="am-u-md-3 my-sidebar">
-      <div class="am-offcanvas" id="sidebar">
-        <div class="am-offcanvas-bar">
-          <ul class="am-nav">
-            <li><a href="#">{{ blog.title }}</a></li>
-            <li class="am-nav-header">目录</li>
-            <li><a href="#">原文</a></li>
-            <li><a href="#作者简介">作者简介</a></li>
-            <li><a href="#">文章赏析</a></li>
-            <li><a href="#评论">读者评论</a></li>
-          </ul>
-        </div>
-      </div>
+{% block sidebar %}
+<div class="am-u-md-3 am-u-md-pull-9 my-sidebar">
+  <div class="am-offcanvas" id="sidebar">
+    <div class="am-offcanvas-bar">
+      <ul class="am-nav">
+        <li><a href="#">{{ blog.title }}</a></li>
+        <li class="am-nav-header">目录
+            <ul>
+              <li>Test 1</li>
+              <li>Test 2</li>
+              <li>Test 3</li>
+            </ul>
+        </li>
+        <li><a href="#">原文</a></li>
+        <li><a href="#作者简介">作者简介</a></li>
+        <li><a href="#">文章赏析</a></li>
+        <li><a href="#评论">读者评论</a></li>
+      </ul>
     </div>
-
-
+  </div>
 </div>
-<!-- content end -->
+<a href="#sidebar" class="am-btn am-btn-sm am-btn-success am-icon-bars am-show-sm-only my-button" data-am-offcanvas><span class="am-sr-only">侧栏导航</span></a>
+{% endblock %}
+
+
+{% block divwrapend %}
+</div>
+{% endblock %}
+
+
+{% block footer %}
+<footer class="my-footer">
+  <p>sidebar template<br><small>© Copyright XXX. by the AmazeUI Team.</small></p>
+</footer>
 {% endblock %}

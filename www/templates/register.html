@@ -3,6 +3,18 @@
 {% block title %}注册{% endblock %}
 
 
+{% block beforehead %}
+<style>
+    .log-footer {
+      color: #fff;
+    }
+    .log-content {
+    margin-top: 10%;
+    }
+</style>
+{% endblock %}
+
+
 {% block header %}
 <header>
   <div class="log-header">
@@ -43,11 +55,11 @@
         </div>
         <br>
 
-        <div class="am-input-group am-animation-slide-left log-animation-delay-a">
+        <!-- <div class="am-input-group am-animation-slide-left log-animation-delay-a">
           <input name="password2" type="password" data-equal-to="#log-password" class="am-form-field am-radius log-input" placeholder="确认密码" data-validation-message="请确认密码一致" required>
           <span class="am-input-group-label log-icon am-radius"><i class="am-icon-lock am-icon-sm am-icon-fw"></i></span>
         </div>
-        <br>
+        <br> -->
 
         <button type="submit" class="am-btn am-btn-primary am-btn-block am-btn-lg am-radius am-animation-slide-bottom log-animation-delay-b">注 册</button>
         <br>
@@ -56,8 +68,11 @@
     </div>
   </div>
 </div>
-  {% endblock %}
+{% endblock %}
 
+
+{% block sidebar %}
+{% endblock %}
 
 
 {% block footer %}

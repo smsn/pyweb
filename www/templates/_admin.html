@@ -1,12 +1,22 @@
 <!doctype html>
-<html>
+<html class="no-js">
+<!-- <html class="no-js fixed-layout"> -->
 
 <head>
   <meta charset="utf-8">
   {% block meta %}
   <!-- block meta -->
   {% endblock %}
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{% block title %} ? {% endblock %} - 后台管理</title>
+  <meta name="description" content="后台管理">
+  <meta name="keywords" content="index">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="icon" type="image/png" href="/static/img/favicon.png">
+  <link rel="apple-touch-icon-precomposed" href="/static/img/app-icon72x72@2x.png">
+  <meta name="apple-mobile-web-app-title" content="Amaze UI" />
   <link rel="stylesheet" href="/static/css/amazeui.min.css">
   <link rel="stylesheet" href="/static/css/admin.css">
   <link rel="stylesheet" href="/static/css/app.css">
@@ -14,14 +24,9 @@
   <script src="/static/js/jquery-3.4.1.min.js"></script>
   <script src="/static/js/amazeui.min.js"></script>
   <script src="/static/js/app.js"></script>
-  <style>
-    .am-table>tbody>tr>td {
-      vertical-align: middle;
-    }
-  </style>
   {% block beforehead %}{% endblock %}
 </head>
-<!-- style="text-align:center;" -->
+
 
 <body>
   {% block header %}
@@ -95,16 +100,22 @@
     <!-- sidebar end -->
 
 
-
+    <!-- content start -->
     {% block content %}
     <!-- content -->
     {% endblock %}
+    <!-- content end -->
 
 
   </div>
 
 
+  <a href="#" class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"></a>
 
+  <footer>
+    <hr>
+    <p class="am-padding-left">© 2014 AllMobilize, Inc. Licensed under MIT license.</p>
+  </footer>
 
 </body>
 

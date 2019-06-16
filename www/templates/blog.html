@@ -2,6 +2,7 @@
 
 {% block title %}{{ blog.title }} - Blog{% endblock %}
 
+
 {% block beforehead %}
 <style>
     @media only screen and (min-width: 641px) {
@@ -58,117 +59,154 @@
         margin-top: 0;
       }
     }
+
+    @media only screen and (min-width: 641px) {
+        .am-u-md-pull-9 {
+            right: 70%;
+        }
+        .am-u-md-push-3 {
+            left: 30%;
+        }
+        /* .am-u-md-8 {
+            width: 75%;
+        } */
+    }
+
+    .my-button {
+      position: fixed;
+      top: 0;
+      right: 0;
+      border-radius: 0;
+    }
     .my-sidebar {
-      width: 20%;
-      float: left;
       padding-right: 0;
       border-right: 1px solid #eeeeee;
     }
-    .blog-content .am-u-sm-12 {
-      width: 80%;
-      float: right;
-    }
-    .am-article-meta {
-      font-size: 2rem;
+
+    .my-footer {
+      border-top: 1px solid #eeeeee;
+      padding: 10px 0;
+      margin-top: 10px;
+      text-align: center;
     }
 </style>
 {% endblock %}
 
 
-{% block content %}
-<hr>
-<!-- content srart -->
+{% block divwrap %}
 <div class="am-g am-g-fixed blog-fixed blog-content">
+{% endblock %}
 
 
+{% block content %}
+  <div class="am-u-md-8 am-u-sm-12 am-u-md-push-3">
+    <article class="am-article blog-article-p">
+      <div class="am-article-hd">
+        <h1 class="am-article-title blog-text-center">{{ blog.title }}</h1>
+        <p class="am-article-meta blog-text-center">
+          <span><a href="#" class="blog-color"> 分类 </a></span>&nbsp;|&nbsp;
+          <span><a href="/user/{{ blog.user_id }}"> @{{ blog.user_name }} </a></span>&nbsp;|&nbsp;
+          <span> {{ blog.created_at|datetime_filter }} </span>
+        </p>
+      </div>
 
-    <div class="am-u-md-8 am-u-sm-12">
-      <article class="am-article blog-article-p">
-        <div class="am-article-hd">
-          <h1 class="am-article-title blog-text-center">{{ blog.title }}</h1>
-          <p class="am-article-meta blog-text-center">
-              <span><a href="#" class="blog-color">article</a></span> &nbsp;|&nbsp;
-              <span><a href="/user/{{ blog.user_id }}"> @{{ blog.user_name }} </a></span> &nbsp;|&nbsp;
-              <span><a href="#"> {{ blog.created_at|datetime_filter }} </a></span>
-          </p>
-        </div>
-        <div class="am-article-bd">
-          <p>{{ blog.summary|safe }}</p>
-          <p>{{ blog.content|safe }}</p>
-        </div>
-      </article>
-
-        <div class="am-g blog-article-widget blog-article-margin">
-          <div class="am-u-lg-4 am-u-md-5 am-u-sm-7 am-u-sm-centered blog-text-center">
-            <span class="am-icon-tags"> &nbsp;</span><a href="#">标签</a> , <a href="#">TAG</a> , <a href="#">啦啦</a>
-            <hr>
-            <a href=""><span class="am-icon-qq am-icon-fw am-primary blog-icon"></span></a>
-            <a href=""><span class="am-icon-wechat am-icon-fw blog-icon"></span></a>
-            <a href=""><span class="am-icon-weibo am-icon-fw blog-icon"></span></a>
-          </div>
-        </div>
-
+      <div class="am-article-bd">
         <hr>
-        <div class="am-g blog-author blog-article-margin" id="作者简介">
-          <div class="am-u-sm-3 am-u-md-3 am-u-lg-2">
-            <img src="{{ blog.user_avatar }}" alt="" class="blog-author-img am-circle">
-          </div>
-          <div class="am-u-sm-9 am-u-md-9 am-u-lg-10">
-          <h3><span>作者 &nbsp;: &nbsp;</span><span class="blog-color">{{ blog.user_name }}</span></h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-          </div>
-        </div>
+        <p>{{ blog.summary|safe }}</p>
         <hr>
-
-        <ul class="am-pagination blog-article-margin">
-          <li class="am-pagination-prev"><a href="#" class="">&laquo; 一切的回顾</a></li>
-          <li class="am-pagination-next"><a href="">不远的未来 &raquo;</a></li>
-        </ul>
-
+        <p>{{ blog.content|safe }}</p>
         <hr>
+      </div>
+    </article>
 
-        <form class="am-form am-g" id="评论">
-            <h3 class="blog-comment">评论</h3>
-          <fieldset>
-            <div class="am-form-group am-u-sm-4 blog-clear-left">
-              <input type="text" class="" placeholder="名字">
-            </div>
-            <div class="am-form-group am-u-sm-4">
-              <input type="email" class="" placeholder="邮箱">
-            </div>
-
-            <div class="am-form-group am-u-sm-4 blog-clear-right">
-              <input type="password" class="" placeholder="网站">
-            </div>
-
-            <div class="am-form-group">
-              <textarea class="" rows="5" placeholder="一字千金"></textarea>
-            </div>
-
-            <p><button type="submit" class="am-btn am-btn-default">发表评论</button></p>
-          </fieldset>
-        </form>
-
+    <div class="am-g blog-article-widget blog-article-margin">
+      <div class="am-u-lg-4 am-u-md-5 am-u-sm-7 am-u-sm-centered blog-text-center">
+        <span class="am-icon-tags"> &nbsp;</span><a href="#">标签</a> , <a href="#">TAG</a> , <a href="#">啦啦</a>
         <hr>
-    </div>
-
-
-    <div class="am-u-md-3 my-sidebar">
-      <div class="am-offcanvas" id="sidebar">
-        <div class="am-offcanvas-bar">
-          <ul class="am-nav">
-            <li><a href="#">{{ blog.title }}</a></li>
-            <li class="am-nav-header">目录</li>
-            <li><a href="#">原文</a></li>
-            <li><a href="#作者简介">作者简介</a></li>
-            <li><a href="#">文章赏析</a></li>
-            <li><a href="#评论">读者评论</a></li>
-          </ul>
-        </div>
+        <a href=""><span class="am-icon-qq am-icon-fw am-primary blog-icon"></span></a>
+        <a href=""><span class="am-icon-wechat am-icon-fw blog-icon"></span></a>
+        <a href=""><span class="am-icon-weibo am-icon-fw blog-icon"></span></a>
       </div>
     </div>
 
+    <hr>
+    <div class="am-g blog-author blog-article-margin" id="作者简介">
+      <div class="am-u-sm-3 am-u-md-3 am-u-lg-2">
+        <img src="{{ blog.user_avatar }}" alt="" class="blog-author-img am-circle">
+      </div>
+      <div class="am-u-sm-9 am-u-md-9 am-u-lg-10">
+        <h3><span>作者 &nbsp;: &nbsp;</span><span class="blog-color">{{ blog.user_name }}</span></h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      </div>
+    </div>
+    <hr>
 
+    <ul class="am-pagination blog-article-margin">
+      <li class="am-pagination-prev"><a href="#" class="">&laquo; 一切的回顾</a></li>
+      <li class="am-pagination-next"><a href="">不远的未来 &raquo;</a></li>
+    </ul>
+
+    <hr>
+
+    <form class="am-form am-g" id="评论">
+      <h3 class="blog-comment">评论</h3>
+      <fieldset>
+        <div class="am-form-group am-u-sm-4 blog-clear-left">
+          <input type="text" class="" placeholder="名字">
+        </div>
+
+        <div class="am-form-group am-u-sm-4">
+          <input type="email" class="" placeholder="邮箱">
+        </div>
+
+        <div class="am-form-group am-u-sm-4 blog-clear-right">
+          <input type="password" class="" placeholder="网站">
+        </div>
+
+        <div class="am-form-group">
+          <textarea class="" rows="5" placeholder="一字千金"></textarea>
+        </div>
+
+        <p><button type="submit" class="am-btn am-btn-default">发表评论</button></p>
+      </fieldset>
+    </form>
+
+  </div>
+{% endblock %}
+
+
+{% block sidebar %}
+<div class="am-u-md-3 am-u-md-pull-9 my-sidebar">
+  <div class="am-offcanvas" id="sidebar">
+    <div class="am-offcanvas-bar">
+      <ul class="am-nav">
+        <li><a href="#">{{ blog.title }}</a></li>
+        <li class="am-nav-header">目录
+            <ul>
+              <li>Test 1</li>
+              <li>Test 2</li>
+              <li>Test 3</li>
+            </ul>
+        </li>
+        <li><a href="#">原文</a></li>
+        <li><a href="#作者简介">作者简介</a></li>
+        <li><a href="#">文章赏析</a></li>
+        <li><a href="#评论">读者评论</a></li>
+      </ul>
+    </div>
+  </div>
 </div>
-<!-- content end -->
+<a href="#sidebar" class="am-btn am-btn-sm am-btn-success am-icon-bars am-show-sm-only my-button" data-am-offcanvas><span class="am-sr-only">侧栏导航</span></a>
+{% endblock %}
+
+
+{% block divwrapend %}
+</div>
+{% endblock %}
+
+
+{% block footer %}
+<footer class="my-footer">
+  <p>sidebar template<br><small>© Copyright XXX. by the AmazeUI Team.</small></p>
+</footer>
 {% endblock %}

@@ -117,7 +117,7 @@ body {
     font-size:4rem;
 }
 .log-content {
-    margin-top:6%;
+    margin-top:15%;
     text-align:center;
 }
 .log-button {
@@ -305,11 +305,6 @@ a {
     max-width:100%;
     height:auto;
 }
-
-.blog-entry-img img {
-    box-shadow: 0 38px 32px -23px black;
-}
-
 .blog-entry-article {
     margin:3rem 0;
     padding-bottom: 3rem;
@@ -509,4 +504,31 @@ h1 span{
 }
 .timeline-span {
     border-left:2px solid #10D07A;
+}
+
+.am-article-bd p {
+    text-indent: 2em; /*首行缩进*/
+    font-family: "Segoe UI","Lucida Grande",Helvetica,Arial,"Noto Sans","Microsoft YaHei",FreeSans,Arimo,"Droid Sans","Hiragino Sans GB","Hiragino Sans GB W3",FontAwesome,sans-serif;
+    font-size: 2rem;
+}
+
+.am-article-bd p code {
+    font-size: 1.9rem;
+}
+
+.am-article-bd blockquote {
+    font-family: "Segoe UI","Lucida Grande",Helvetica,Arial,"Noto Sans","Microsoft YaHei",FreeSans,Arimo,"Droid Sans","Hiragino Sans GB","Hiragino Sans GB W3",FontAwesome,sans-serif;
+    font-size: 1.9rem;
+}
+
+.am-article-bd blockquote code {
+    font-size: 1.8rem;
+}
+
+.am-article-bd p a {
+    color: #0e90d2;
+}
+
+.codehilite pre {
+    font-size: 1.8rem;
 }
