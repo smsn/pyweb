@@ -509,20 +509,20 @@ h1 span{
 .am-article-bd p {
     text-indent: 2em; /*首行缩进*/
     font-family: "Segoe UI","Lucida Grande",Helvetica,Arial,"Noto Sans","Microsoft YaHei",FreeSans,Arimo,"Droid Sans","Hiragino Sans GB","Hiragino Sans GB W3",FontAwesome,sans-serif;
-    font-size: 2rem;
+    font-size: 1.9rem;
 }
 
 .am-article-bd p code {
-    font-size: 1.9rem;
+    font-size: 1.8rem;
 }
 
 .am-article-bd blockquote {
     font-family: "Segoe UI","Lucida Grande",Helvetica,Arial,"Noto Sans","Microsoft YaHei",FreeSans,Arimo,"Droid Sans","Hiragino Sans GB","Hiragino Sans GB W3",FontAwesome,sans-serif;
-    font-size: 1.9rem;
+    font-size: 1.8rem;
 }
 
 .am-article-bd blockquote code {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
 }
 
 .am-article-bd p a {
@@ -530,5 +530,5 @@ h1 span{
 }
 
 .codehilite pre {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
 }

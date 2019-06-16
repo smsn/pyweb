@@ -32,7 +32,7 @@
   {% block header %}
   <header class="am-topbar am-topbar-inverse admin-header">
     <div class="am-topbar-brand">
-      <strong>后台管理</strong> <small>Admin </small>
+      <strong>后台管理</strong> <small>{{ user.name }}</small>
     </div>
 
     <button class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only" data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">导航切换</span> <span class="am-icon-bars"></span></button>
@@ -111,11 +111,6 @@
 
 
   <a href="#" class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"></a>
-
-  <footer>
-    <hr>
-    <p class="am-padding-left">© 2014 AllMobilize, Inc. Licensed under MIT license.</p>
-  </footer>
 
 </body>
 
